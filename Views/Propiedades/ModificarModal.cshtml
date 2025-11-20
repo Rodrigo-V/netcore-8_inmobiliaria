@@ -1,0 +1,189 @@
+@model Inmobiliaria.Net8.DTOs.Propiedad
+
+<div class="container-fluid modal-dark-content" style="padding: 16px;">
+    <input type="hidden" id="txtIdPropiedad" value="@Model.ID_Propiedad" />
+    <input type="hidden" id="hiddenTipoPropiedad" value="@Model.Tipo_elemento" />
+    <input type="hidden" id="hiddenRegion" value="@Model.Region" />
+    <input type="hidden" id="hiddenComuna" value="@Model.Comuna" />
+    <input type="hidden" id="hiddenEstado" value="@Model.Estado" />
+    <input type="hidden" id="hiddenAgenteResponsable" value="@Model.Agente_Responsable" />
+    <input type="hidden" id="hiddenDormitorios" value="@Model.Dormitorios" />
+    <input type="hidden" id="hiddenBanos" value="@Model.Banos" />
+    
+    <!-- Tarjeta de Imagen -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-image"></i>
+            <span>Imagen de la Propiedad</span>
+            <small style="color: #888; font-size: 0.85rem; margin-left: auto;">ID: @Model.ID_Propiedad</small>
+        </div>
+        <div class="imagen-preview-container">
+            @if (!string.IsNullOrEmpty(Model.Url_Imagen))
+            {
+                <img src="@Model.Url_Imagen" alt="Imagen de la propiedad" class="imagen-preview" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                <div class="no-imagen" style="display:none;">
+                    <i class="fas fa-image-slash"></i>
+                    <p>Imagen no disponible</p>
+                </div>
+            }
+            else
+            {
+                <div class="no-imagen">
+                    <i class="fas fa-image-slash"></i>
+                    <p>Sin imagen cargada</p>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Información Básica -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-info-circle"></i>
+            <span>Información Básica</span>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtTitulo" style="font-weight:600; color: white;">Título *</label>
+                    <input type="text" class="form-control modal-input" id="txtTitulo" value="@Model.Title" required />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selTipoPropiedad" style="font-weight:600; color: white;">Tipo de Propiedad *</label>
+                    <select class="form-control modal-input" id="selTipoPropiedad" required>
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Ubicación -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Ubicación</span>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtDireccion" style="font-weight:600; color: white;">Dirección</label>
+                    <input type="text" class="form-control modal-input" id="txtDireccion" value="@Model.Direccion" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selRegion" style="font-weight:600; color: white;">Región *</label>
+                    <select class="form-control modal-input" id="selRegion" required>
+                        <option value="">Seleccione región...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selComuna" style="font-weight:600; color: white;">Comuna</label>
+                    <select class="form-control modal-input" id="selComuna">
+                        <option value="">Seleccione región primero...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Características -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-home"></i>
+            <span>Características</span>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtPrecio" style="font-weight:600; color: white;">Precio</label>
+                    <input type="text" class="form-control modal-input" id="txtPrecio" value="@Model.Valor" placeholder="Ej: 150000000" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selDormitorios" style="font-weight:600; color: white;">Dormitorios</label>
+                    <select class="form-control modal-input" id="selDormitorios">
+                        <option value="">Seleccione...</option>
+                        <option value="0">0 (Sin dormitorios)</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6+</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selBanos" style="font-weight:600; color: white;">Baños</label>
+                    <select class="form-control modal-input" id="selBanos">
+                        <option value="">Seleccione...</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5+</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selEstado" style="font-weight:600; color: white;">Estado *</label>
+                    <select class="form-control modal-input" id="selEstado" required>
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Medidas -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-ruler-combined"></i>
+            <span>Medidas</span>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtMetrosConstruidos" style="font-weight:600; color: white;">Metros Construidos (m²)</label>
+                    <input type="text" class="form-control modal-input" id="txtMetrosConstruidos" value="@Model.M2_Construidos" placeholder="Ej: 120" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtMetrosTerreno" style="font-weight:600; color: white;">Metros Terreno (m²)</label>
+                    <input type="text" class="form-control modal-input" id="txtMetrosTerreno" value="@Model.M2_Terreno" placeholder="Ej: 200" />
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Gestión -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-user-tie"></i>
+            <span>Gestión</span>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selAgenteResponsable" style="font-weight:600; color: white;">Agente Responsable</label>
+                    <select class="form-control modal-input" id="selAgenteResponsable">
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

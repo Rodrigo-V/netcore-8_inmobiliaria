@@ -1,0 +1,291 @@
+============================================
+   MEJORAS AL MODAL DE PROPIEDADES
+============================================
+
+FECHA: 2025-11-14
+MÓDULO: Propiedades - Modal Agregar
+DESCRIPCIÓN: Conversión de campos de texto a SELECTs con datos dinámicos
+
+
+============================================
+   CAMBIOS IMPLEMENTADOS
+============================================
+
+✅ 1. TIPO DE PROPIEDAD → SELECT
+   - Convertido de campo de texto a SELECT
+   - Datos obtenidos desde SP: PP_psnp_Propiedad_ObtenerTipos
+   - Opciones: Casa, Departamento, Oficina, Local Comercial, Terreno, Parcela, Bodega, Estacionamiento, Elemento
+
+✅ 2. REGIÓN → SELECT (CON API PÚBLICA)
+   - Convertido a SELECT
+   - Usa API pública de Chile: https://apis.digital.gob.cl/dpa/
+   - 16 regiones de Chile cargadas
+   - Campo obligatorio (*)
+
+✅ 3. COMUNA → SELECT DEPENDIENTE
+   - Convertido a SELECT
+   - DEPENDIENTE de la selección de región
+   - Se habilita solo al seleccionar región
+   - Carga comunas desde API pública de Chile por región
+   - Carga dinámica mediante AJAX
+
+✅ 4. DORMITORIOS → SELECT
+   - Convertido de campo de texto a SELECT
+   - Opciones: 0 (Sin dormitorios), 1, 2, 3, 4, 5, 6+
+
+✅ 5. BAÑOS → SELECT
+   - Convertido de campo de texto a SELECT
+   - Opciones: 0, 1, 2, 3, 4, 5+
+
+✅ 6. ESTADO → SELECT
+   - Convertido de campo de texto a SELECT
+   - Datos obtenidos desde SP: PP_psnp_Propiedad_ObtenerEstados
+   - Valor por defecto: "Disponible"
+   - Campo obligatorio (*)
+   - Opciones: Disponible, Reservada, Vendida, Arrendada, En Accion, En Carpeta, En Edicion, Suspendida, etc.
+
+✅ 7. AGENTE RESPONSABLE → SELECT
+   - Convertido de campo de texto a SELECT
+   - Datos obtenidos desde SP: PP_psnp_Propiedad_ObtenerAgentes
+   - Lista de usuarios activos del sistema (Nombres + Apellidos)
+
+
+============================================
+   STORED PROCEDURES CREADOS
+============================================
+
+✅ PP_psnp_Propiedad_ObtenerTipos
+   - Retorna lista de tipos de propiedad
+   - Sin parámetros
+   - Columna: Tipo
+
+✅ PP_psnp_Propiedad_ObtenerEstados
+   - Retorna lista de estados de propiedad
+   - Sin parámetros
+   - Columna: Estado
+   - Combina estados existentes en BD + estados predefinidos
+
+✅ PP_psnp_Propiedad_ObtenerAgentes
+   - Retorna lista de agentes responsables
+   - Obtiene usuarios activos de la tabla Usuarios
+   - Sin parámetros
+   - Columna: Agente (Nombres + Apellidos)
+
+
+============================================
+   ENDPOINTS AGREGADOS AL CONTROLLER
+============================================
+
+✅ GET: /Propiedades/ObtenerTiposPropiedad
+   - Retorna JSON con tipos de propiedad
+   - Response: { success: true, data: ["Casa", "Departamento", ...] }
+
+✅ GET: /Propiedades/ObtenerEstados
+   - Retorna JSON con estados
+   - Response: { success: true, data: ["Disponible", "Vendida", ...] }
+
+✅ GET: /Propiedades/ObtenerAgentes
+   - Retorna JSON con agentes responsables
+   - Response: { success: true, data: ["Juan Pérez", "María Silva", ...] }
+
+
+============================================
+   MÉTODOS AGREGADOS AL SERVICE
+============================================
+
+✅ ObtenerTiposPropiedadAsync()
+   - Llama al SP PP_psnp_Propiedad_ObtenerTipos
+   - Retorna List<string>
+
+✅ ObtenerEstadosAsync()
+   - Llama al SP PP_psnp_Propiedad_ObtenerEstados
+   - Retorna List<string>
+
+✅ ObtenerAgentesAsync()
+   - Llama al SP PP_psnp_Propiedad_ObtenerAgentes
+   - Retorna List<string>
+
+
+============================================
+   API PÚBLICA UTILIZADA
+============================================
+
+🌐 API de División Política Administrativa de Chile
+   - URL Base: https://apis.digital.gob.cl/dpa/
+   - Endpoint Regiones: /regiones
+   - Endpoint Comunas: /regiones/{codigo}/comunas
+   - Formato: JSON
+   - Documentación oficial del Gobierno de Chile
+   - Sin autenticación requerida
+   - Gratuita y pública
+
+
+============================================
+   REGIONES DE CHILE IMPLEMENTADAS
+============================================
+
+ 1. Arica y Parinacota (15)
+ 2. Tarapacá (01)
+ 3. Antofagasta (02)
+ 4. Atacama (03)
+ 5. Coquimbo (04)
+ 6. Valparaíso (05)
+ 7. Metropolitana de Santiago (13)
+ 8. O'Higgins (06)
+ 9. Maule (07)
+10. Ñuble (16)
+11. Biobío (08)
+12. La Araucanía (09)
+13. Los Ríos (14)
+14. Los Lagos (10)
+15. Aysén (11)
+16. Magallanes (12)
+
+
+============================================
+   FUNCIONALIDAD REGIÓN-COMUNA
+============================================
+
+1. Usuario selecciona REGIÓN
+   ↓
+2. JavaScript detecta el cambio (evento 'change')
+   ↓
+3. Se obtiene el código de región
+   ↓
+4. Se hace llamada AJAX a la API pública de Chile
+   URL: https://apis.digital.gob.cl/dpa/regiones/{codigo}/comunas
+   ↓
+5. Se reciben las comunas en formato JSON
+   ↓
+6. Se llenan las opciones del SELECT de comunas
+   ↓
+7. Se habilita el SELECT de comunas
+
+
+============================================
+   VALIDACIONES IMPLEMENTADAS
+============================================
+
+✅ Título: Obligatorio
+✅ Tipo de Propiedad: Obligatorio
+✅ Región: Obligatorio
+✅ Estado: Obligatorio
+✅ Comuna: Depende de región (habilitado solo si hay región seleccionada)
+
+
+============================================
+   ARCHIVOS MODIFICADOS/CREADOS
+============================================
+
+📄 CREADOS:
+  ✓ SQL/PP_psnp_Propiedad_ObtenerCatalogos.sql
+  ✓ SQL/FIX_PP_psnp_Propiedad_ObtenerAgentes.sql
+  ✓ MEJORAS_MODAL_PROPIEDADES.txt
+
+📄 MODIFICADOS:
+  ✓ Services/PropiedadesService.cs
+    - Agregados 3 métodos nuevos (Tipos, Estados, Agentes)
+  
+  ✓ Controllers/PropiedadesController.cs
+    - Agregados 3 endpoints nuevos (GET)
+  
+  ✓ Views/Propiedades/AgregarModal.cshtml
+    - 7 campos convertidos de input a select
+    - Agregado script de carga de regiones
+    - Agregado script de carga de comunas (API)
+    - Agregado script de carga de catálogos
+  
+  ✓ wwwroot/js/propiedades.js
+    - Actualizada función validarYGuardarNuevaPropiedad()
+    - Agregadas validaciones para campos obligatorios
+    - Actualizado para leer valores de SELECTs
+
+
+============================================
+   CARACTERÍSTICAS TÉCNICAS
+============================================
+
+✅ Carga asíncrona de catálogos
+✅ Manejo de errores en llamadas AJAX
+✅ Feedback visual al usuario (Cargando comunas...)
+✅ Deshabilitar/habilitar SELECT de comunas según región
+✅ Valores por defecto (Estado = "Disponible")
+✅ Validaciones client-side antes de enviar al servidor
+✅ Mensajes de error informativos
+✅ Compatible con tema oscuro del sistema
+✅ Responsive y adaptable a móviles
+
+
+============================================
+   VENTAJAS DE LOS CAMBIOS
+============================================
+
+1. ✅ MEJOR UX
+   - Usuarios seleccionan en lugar de escribir
+   - Reduce errores de tipeo
+   - Datos más consistentes en la BD
+
+2. ✅ DATOS ESTANDARIZADOS
+   - Regiones y comunas de Chile oficiales
+   - Tipos de propiedad uniformes
+   - Estados controlados
+
+3. ✅ VALIDACIÓN MEJORADA
+   - Campos obligatorios marcados
+   - Validación antes de enviar
+   - Mensajes claros de error
+
+4. ✅ INTEGRACIÓN CON DATOS OFICIALES
+   - API pública del Gobierno de Chile
+   - Datos actualizados automáticamente
+   - Sin mantenimiento manual de regiones/comunas
+
+5. ✅ ESCALABILIDAD
+   - Fácil agregar más tipos de propiedad (modificar SP)
+   - Fácil agregar más estados (modificar SP)
+   - Agentes se cargan automáticamente desde usuarios activos
+
+
+============================================
+   EJEMPLO DE USO
+============================================
+
+1. Usuario hace clic en "Agregar Propiedad"
+2. Se abre el modal con SweetAlert2
+3. Se cargan automáticamente:
+   - Tipos de propiedad (desde BD)
+   - Estados (desde BD)
+   - Agentes (desde BD)
+   - Regiones (hardcoded, 16 regiones de Chile)
+4. Usuario selecciona región (ej: "Metropolitana de Santiago")
+5. Se cargan automáticamente las comunas desde la API
+6. Usuario completa los demás campos
+7. Hace clic en "Guardar"
+8. Se validan los campos obligatorios
+9. Se envía al servidor
+10. Se guarda en la BD
+11. Se actualiza la grilla
+
+
+============================================
+   TESTING RECOMENDADO
+============================================
+
+□ Probar selección de cada región
+□ Verificar carga de comunas para cada región
+□ Probar validaciones de campos obligatorios
+□ Verificar que los datos se guardan correctamente
+□ Probar en diferentes navegadores
+□ Verificar tema oscuro en todos los selects
+□ Probar con conexión lenta (API)
+□ Verificar manejo de errores de API
+
+
+============================================
+   FIN DE MEJORAS
+============================================
+
+Modal de Agregar Propiedad mejorado exitosamente ✓
+Integración con API pública de Chile ✓
+Fecha: 2025-11-14
+

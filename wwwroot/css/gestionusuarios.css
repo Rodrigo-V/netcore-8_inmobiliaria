@@ -1,0 +1,244 @@
+/* CSS para Gestión de Usuarios - Tema Oscuro */
+
+/* Tema oscuro para las tarjetas */
+.card {
+    background-color: #272727 !important;
+    border: 1px solid #404040 !important;
+    color: #e0e0e0 !important;
+}
+
+.card-header {
+    background-color: #404040 !important;
+    border-bottom: 1px solid #555 !important;
+    color: #ffffff !important;
+}
+
+.card-body {
+    background-color: #272727 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Tablas */
+.table {
+    background-color: #272727 !important;
+    color: #e0e0e0 !important;
+    font-size: 14px !important;
+}
+
+.table thead th {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border-color: #555 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 12px 8px !important;
+}
+
+.table tbody td {
+    background-color: #272727 !important;
+    color: #e0e0e0 !important;
+    border-color: #404040 !important;
+    font-size: 14px !important;
+    padding: 12px 8px !important;
+    vertical-align: middle !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #2f2f2f !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: #404040 !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+    font-size: 14px !important;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #505050 !important;
+    border-color: #007bff !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.form-control::placeholder {
+    color: #999 !important;
+}
+
+.form-label {
+    color: #e0e0e0 !important;
+    font-weight: 500;
+}
+
+.form-text {
+    color: #999 !important;
+}
+
+/* Alerts */
+.alert {
+    background-color: #272727 !important;
+    border-color: #404040 !important;
+    color: #e0e0e0 !important;
+    font-size: 14px !important;
+}
+
+.alert-success {
+    background-color: #1e4a1e !important;
+    border-color: #2d5a2d !important;
+    color: #90ee90 !important;
+}
+
+.alert-danger {
+    background-color: #4a1e1e !important;
+    border-color: #5a2d2d !important;
+    color: #ff6b6b !important;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.85em !important;
+    padding: 6px 10px !important;
+    font-weight: 500 !important;
+}
+
+/* Buttons */
+.btn-group .btn {
+    margin-right: 3px;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+    min-width: 40px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0;
+}
+
+.btn-group .btn i {
+    font-size: 14px !important;
+}
+
+/* Avatar */
+.avatar-sm {
+    width: 45px;
+    height: 45px;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px !important;
+    color: white;
+}
+
+/* DataTables con tema oscuro */
+.dataTables_wrapper .dataTables_paginate {
+    text-align: left !important;
+    margin-top: 10px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background-color: #404040 !important;
+    border: 1px solid #555 !important;
+    color: #e0e0e0 !important;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #505050 !important;
+    border-color: #007bff !important;
+    color: #ffffff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: #ffffff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    background-color: #2f2f2f !important;
+    border-color: #404040 !important;
+    color: #666 !important;
+    cursor: not-allowed;
+}
+
+/* Ocultar elementos no deseados de DataTables */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info {
+    display: none !important;
+}
+
+/* Input Group */
+.input-group-text {
+    background-color: #404040 !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Form Check */
+.form-check-input {
+    background-color: #404040 !important;
+    border-color: #555 !important;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.form-check-label {
+    color: #e0e0e0 !important;
+}
+
+/* Estadísticas */
+.card.bg-primary .card-body,
+.card.bg-success .card-body,
+.card.bg-warning .card-body,
+.card.bg-info .card-body,
+.card.bg-secondary .card-body,
+.card.bg-dark .card-body {
+    padding: 1rem;
+}
+
+.card.bg-primary .card-title,
+.card.bg-success .card-title,
+.card.bg-warning .card-title,
+.card.bg-info .card-title,
+.card.bg-secondary .card-title,
+.card.bg-dark .card-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.card.bg-primary .card-text,
+.card.bg-success .card-text,
+.card.bg-warning .card-text,
+.card.bg-info .card-text,
+.card.bg-secondary .card-text,
+.card.bg-dark .card-text {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+

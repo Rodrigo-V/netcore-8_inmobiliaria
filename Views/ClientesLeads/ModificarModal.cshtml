@@ -1,0 +1,806 @@
+@model Inmobiliaria.Net8.DTOs.ClienteLead
+
+@* Los estilos CSS están en wwwroot/css/clientesleads.css *@
+
+<div class="error-message" id="errorContainer" style="display: none;">
+    <div class="fw-bold">Error al procesar la información</div>
+    <ul id="errorList" style="margin: 5px 0 0 20px;"></ul>
+</div>
+
+<div class="form-control-modal" id="formModificarLead">
+    <div class="secciones-container">
+        
+        <!-- ===================================================== -->
+        <!-- SECCIÓN 1: DATOS DE LA PROPIEDAD -->
+        <!-- ===================================================== -->
+        <div class="seccion-caja seccion-propiedad">
+            <div class="seccion-header">
+                <i class="fas fa-home"></i>
+                <h3>Datos de la Propiedad</h3>
+            </div>
+            
+            <div class="field">
+                <label>Propiedad Consultada</label>
+                <select name="ID_Unidad_Consultada" id="ddlPropiedadEdit" class="form-select">
+                    <option value="">Seleccionar propiedad</option>
+                    <!-- Se llenarán dinámicamente desde el controller -->
+                </select>
+                <input type="hidden" name="Unidad_Consultada" id="hdnUnidadConsultadaEdit" value="@Model.Unidad_Consultada" />
+            </div>
+
+            <!-- Contenedor para imagen de la propiedad -->
+            <div class="field">
+                <label>Imagen de la Propiedad</label>
+                <div class="propiedad-imagen-container" id="propiedadImagenContainer">
+                    @if (!string.IsNullOrEmpty(Model.Imagen_Propiedad))
+                    {
+                        <img src="@Model.Imagen_Propiedad" class="propiedad-imagen" alt="Imagen de la propiedad" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                             onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+                        <div class="no-image-content" style="display: none; flex-direction: column; align-items: center;">
+                            <i class="fas fa-image"></i>
+                            <p>Imagen no disponible</p>
+                            <small style="color: #888; font-size: 11px; margin-top: 5px;">
+                                No se encontró imagen para la propiedad
+                            </small>
+                        </div>
+                        <div style="margin-top: 10px; text-align: center;">
+                            <small style="color: #28a745; font-size: 11px; font-style: italic;">
+                                <i class="fas fa-cloud"></i> Imagen cargada automáticamente desde Google Drive
+                            </small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="no-image-content" style="display: flex; flex-direction: column; align-items: center;">
+                            <i class="fas fa-image"></i>
+                            <p>No hay imagen disponible</p>
+                            <small style="color: #888; font-size: 11px; margin-top: 5px;">
+                                La imagen se cargará automáticamente cuando seleccione una propiedad
+                            </small>
+                        </div>
+                    }
+                </div>
+                
+                <small style="color: #888; font-size: 11px; font-style: italic;">
+                    <i class="fas fa-info-circle"></i> Las imágenes se cargan automáticamente desde Google Drive
+                </small>
+            </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- SECCIÓN 2: DATOS DEL CLIENTE -->
+        <!-- ===================================================== -->
+        <div class="seccion-caja seccion-cliente">
+            <div class="seccion-header">
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-user"></i>
+                        <h3>Datos del Cliente</h3>
+                    </div>
+                    <div class="field" id="asisenteFieldContainer" style="margin: 0; min-width: 200px;">
+                        <label style="font-size: 12px; margin-bottom: 4px;">Asistente</label>
+                        <select name="Asistente" id="ddlAsistenteEdit" class="form-select" style="font-size: 12px; min-height: 32px;">
+                            <option value="">Seleccionar asistente</option>
+                            <!-- Se llenarán dinámicamente -->
+                        </select>
+                        <small class="agent-readonly-note" id="asisenteReadonlyNote" style="display: none; font-size: 10px;">
+                            <i class="fas fa-lock"></i> Solo administradores pueden cambiar el asistente
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="field">
+                        <label>ID Cliente</label>
+                        <input type="text" name="ID_Cliente" value="@Model.ID_Cliente" readonly style="background-color: #272727; color: #ccc;">
+                        <small style="color: #e67e22; font-size: 11px; font-style: italic;">
+                            <i class="fas fa-lock"></i> Campo no editable
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="field" id="fechaContactoFieldContainer">
+                        <label>Fecha de Contacto</label>
+                        <input type="date" name="Fecha_Contacto" id="inputFechaContacto" value="@(Model.Fecha_Contacto?.ToString("yyyy-MM-dd"))">
+                        <input type="hidden" name="Fecha_Contacto_Hidden" id="hdnFechaContacto" value="@(Model.Fecha_Contacto?.ToString("yyyy-MM-dd"))">
+                        <small class="agent-readonly-note" id="fechaReadonlyNote" style="display: none;">
+                            <i class="fas fa-lock"></i> Solo administradores pueden modificar la fecha de contacto
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="field">
+                        <label>Nombres</label>
+                        <input type="text" name="Nombres" value="@Model.Nombres" placeholder="Nombres del cliente" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="field">
+                        <label>Apellidos</label>
+                        <input type="text" name="Apellidos" value="@Model.Apellidos" placeholder="Apellidos del cliente" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="field">
+                        <label>Correo Electrónico</label>
+                        <input type="email" name="Correo_Electronico" value="@Model.Correo_Electronico" placeholder="correo@email.com" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="field">
+                        <label>Teléfono</label>
+                        <input type="text" name="Telefono" value="@Model.Telefono" placeholder="Número de teléfono">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="field">
+                        <label>Portal</label>
+                        <select name="Portal" id="ddlPortalEdit" class="form-select">
+                            <option value="">Seleccionar portal</option>
+                            <!-- Se llenarán dinámicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="field">
+                        <label>Sexo</label>
+                        <select name="Sexo" id="ddlSexoEdit" class="form-select" data-val="false">
+                            <option value="">Seleccionar</option>
+                            @if (Model.Sexo == "M")
+                            {
+                                <option value="M" selected>Masculino</option>
+                            }
+                            else
+                            {
+                                <option value="M">Masculino</option>
+                            }
+                            @if (Model.Sexo == "F")
+                            {
+                                <option value="F" selected>Femenino</option>
+                            }
+                            else
+                            {
+                                <option value="F">Femenino</option>
+                            }
+                            @if (Model.Sexo == "O")
+                            {
+                                <option value="O" selected>Otro</option>
+                            }
+                            else
+                            {
+                                <option value="O">Otro</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- SECCIÓN 3: SEGUIMIENTO -->
+        <!-- ===================================================== -->
+        <div class="seccion-caja seccion-seguimiento">
+            <div class="seccion-header">
+                <i class="fas fa-tasks"></i>
+                <h3>Seguimiento</h3>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="field" id="seguimientoFieldContainer">
+                        <label>Seguimiento</label>
+                        <select name="Seguimiento" id="ddlSeguimientoEdit" class="form-select">
+                            <option value="">Seleccionar seguimiento</option>
+                            <option value="Nuevo">Nuevo</option>
+                            <option value="En Seguimiento">En Seguimiento</option>
+                            <option value="Con Visita Programada">Con Visita Programada</option>
+                            <option value="En Espera">En Espera</option>
+                            <option value="Terminado">Terminado</option>
+                        </select>
+                        <input type="hidden" name="Seguimiento" id="seguimientoHidden" value="@Model.Seguimiento">
+                        <small class="agent-readonly-note" id="seguimientoReadonlyNote" style="display: none;">
+                            <i class="fas fa-lock"></i> Los agentes no pueden modificar el seguimiento directamente
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="field">
+                        <div class="visita-realizada-container">
+                            <div class="form-check" id="visitaRealizadaContainer">
+                                <input class="form-check-input" type="checkbox" name="Visita_Realizada" id="Visita_Realizada" value="true" @(Model.Visita_Realizada == true ? "checked" : "") @(Model.Visita_Realizada == true ? "disabled" : "")>
+                                <label class="form-check-label" for="Visita_Realizada">
+                                    <i class="fas fa-handshake" style="margin-right: 10px; color: #28a745; font-size: 16px;"></i>
+                                    Visita realizada con el cliente
+                                </label>
+                            </div>
+                            @if (Model.Visita_Realizada == true)
+                            {
+                                <small class="checkbox-help confirmed">
+                                    <i class="fas fa-check-circle"></i> Visita confirmada - No se puede desmarcar
+                                </small>
+                            }
+                            else
+                            {
+                                <small class="checkbox-help">
+                                    <i class="fas fa-info-circle"></i> Una vez marcado, no podrá desmarcarse
+                                </small>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checkbox de "Lead Terminado" para agentes -->
+            <div class="row" id="leadTerminadoRow" style="display: none;">
+                <div class="col-md-12">
+                    <div class="field">
+                        <div class="visita-realizada-container" style="background-color: #2d3436; border-color: #e17055;">
+                            <div class="form-check" id="leadTerminadoContainer">
+                                <input class="form-check-input" type="checkbox" name="Lead_Terminado" id="leadTerminado" value="true" @(Model.Seguimiento == "Terminado" ? "checked" : "") @(Model.Seguimiento == "Terminado" ? "disabled" : "")>
+                                <label class="form-check-label" for="leadTerminado">
+                                    <i class="fas fa-flag-checkered" style="margin-right: 10px; color: #e17055; font-size: 16px;"></i>
+                                    Marcar lead como terminado
+                                </label>
+                            </div>
+                            <small class="checkbox-help" id="leadTerminadoHelp">
+                                <i class="fas fa-info-circle"></i> Al marcar esta opción, el seguimiento cambiará a "Terminado"
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Respuesta</label>
+                <textarea name="Respuesta" rows="3" placeholder="Respuesta del cliente">@Model.Respuesta</textarea>
+            </div>
+
+            <!-- ===================================================== -->
+            <!-- NUEVA SECCIÓN: REGISTRO DE ACCIONES DEL AGENTE -->
+            <!-- ===================================================== -->
+            <div class="field" style="margin-top: 25px;">
+                <div style="background-color: #2d3436; border: 2px solid #3498db; border-radius: 8px; padding: 20px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <i class="fas fa-clipboard-list" style="color: #3498db; font-size: 18px; margin-right: 10px;"></i>
+                        <h4 style="margin: 0; color: #3498db; font-size: 16px; font-weight: 600;">Registro de Acciones del Agente</h4>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="field">
+                                <label style="color: #e0e0e0; font-size: 13px; margin-bottom: 5px;">Tipo de Acción</label>
+                                <select id="tipoAccion" class="form-select" style="font-size: 13px;">
+                                    <option value="">Seleccionar tipo de acción</option>
+                                    <option value="Llamada">📞 Llamada telefónica</option>
+                                    <option value="Email">📧 Envío de email</option>
+                                    <option value="WhatsApp">💬 Mensaje WhatsApp</option>
+                                    <option value="Visita">🏠 Visita al cliente</option>
+                                    <option value="Presentacion">📋 Presentación de propuesta</option>
+                                    <option value="Negociacion">🤝 Negociación</option>
+                                    <option value="Seguimiento">📈 Seguimiento general</option>
+                                    <option value="Otro">⚙️ Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field">
+                                <label style="color: #e0e0e0; font-size: 13px; margin-bottom: 5px;">Resultado</label>
+                                <select id="resultadoAccion" class="form-select" style="font-size: 13px;">
+                                    <option value="">Seleccionar resultado</option>
+                                    <option value="Pendiente">⏳ Pendiente - Requiere seguimiento</option>
+                                    <option value="Completado">✅ Completado - Acción finalizada</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="field" style="margin-top: 15px;">
+                        <label style="color: #e0e0e0; font-size: 13px; margin-bottom: 5px;">Descripción de la Acción</label>
+                        <textarea id="descripcionAccion" class="form-control" rows="3" placeholder="Describe detalladamente la acción realizada, el resultado obtenido y próximos pasos..." style="font-size: 13px; resize: vertical; background-color: #404040 !important; color: white !important; border: 1px solid #555 !important;"></textarea>
+                    </div>
+
+                    <div class="row" style="margin-top: 15px;">
+                        <div class="col-md-6">
+                            <div class="field">
+                                <label style="color: #e0e0e0; font-size: 13px; margin-bottom: 5px;">Próximo Contacto (Opcional)</label>
+                                <input type="date" id="fechaProximoContacto" class="form-control" style="font-size: 13px; background-color: #404040 !important; color: white !important; border: 1px solid #555 !important;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="field" style="display: flex; align-items: end; height: 100%;">
+                                <button type="button" id="btnRegistrarAccion" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 13px; background-color: #3498db; border: none; border-radius: 6px; color: white; cursor: pointer;">
+                                    <i class="fas fa-save"></i> Registrar Acción
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje de confirmación -->
+                    <div id="mensajeAccion" style="display: none; margin-top: 15px; padding: 10px; border-radius: 6px; font-size: 13px;"></div>
+
+                    <!-- Lista de acciones registradas -->
+                    <div style="margin-top: 20px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <i class="fas fa-history" style="color: #f39c12; font-size: 14px; margin-right: 8px;"></i>
+                            <h5 style="margin: 0; color: #f39c12; font-size: 14px; font-weight: 600;">Acciones Registradas</h5>
+                            <button type="button" id="btnCargarAcciones" class="btn btn-sm" style="margin-left: auto; padding: 4px 8px; font-size: 11px; background-color: #6c757d; border: none; border-radius: 4px; color: white; cursor: pointer;">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
+                        <div id="listaAcciones" style="max-height: 200px; overflow-y: auto; background-color: #1a1a1a; border-radius: 6px; padding: 10px;">
+                            <div style="text-align: center; color: #888; font-size: 12px; padding: 20px;">
+                                <i class="fas fa-info-circle"></i>
+                                <p style="margin: 5px 0;">No hay acciones registradas</p>
+                                <p style="margin: 0; font-size: 11px;">Las acciones se mostrarán aquí una vez registradas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.Creado.HasValue)
+            {
+                <div class="field">
+                    <label>Fecha de Creación</label>
+                    <input type="text" value="@(Model.Creado.Value.ToString("dd/MM/yyyy HH:mm"))" readonly style="background-color: #272727; color: #ccc;">
+                    <small style="color: #e67e22; font-size: 11px; font-style: italic;">
+                        <i class="fas fa-lock"></i> Campo no editable
+                    </small>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* 
+    El JavaScript de este modal usa funciones definidas en wwwroot/js/clientesleads.js:
+    - configurarPermisosPorRol()
+    - inicializarCheckboxVisita()
+    - inicializarCheckboxLeadTerminado()
+    - cargarPropiedadesModificar()
+    - cargarAsistentesModificar()
+    - cargarPortalesModificar()
+    - actualizarImagenPropiedad()
+*@
+<script>
+// Variables globales
+var usuarioRol = '@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "")';
+var esAdministrador = (usuarioRol === 'Administrador');
+var esAgente = (usuarioRol === 'Agente');
+var idClienteActual = '@(Model.ID_Cliente ?? "")';
+
+console.log('🔧 Inicializando modal de modificación');
+console.log('  - Rol del usuario:', usuarioRol);
+console.log('  - Es Administrador:', esAdministrador);
+console.log('  - Es Agente:', esAgente);
+console.log('  - ID Cliente:', idClienteActual);
+
+$(document).ready(function() {
+    // Configurar permisos según el rol
+    configurarPermisosPorRol();
+    
+    // Inicializar checkbox de visita realizada
+    inicializarCheckboxVisita();
+    
+    // Inicializar checkbox de lead terminado (solo para agentes)
+    if (esAgente) {
+        inicializarCheckboxLeadTerminado();
+    }
+    
+    // Cargar datos iniciales de los combos usando la función compartida
+    // Pasar los valores actuales del modelo para preseleccionarlos
+    cargarDatosInicialesModificar(
+        '@(Model.ID_Unidad_Consultada ?? "")',
+        '@(Model.Asistente ?? "")',
+        '@(Model.Portal ?? "")',
+        '@(Model.Seguimiento ?? "")'
+    );
+    
+    // Event listener para cambio de propiedad
+    $('#ddlPropiedadEdit').on('change', function() {
+        var idPropiedad = $(this).val();
+        var textoPropiedad = $(this).find('option:selected').text();
+        $('#hdnUnidadConsultadaEdit').val(textoPropiedad);
+        
+        if (idPropiedad && idPropiedad !== '') {
+            actualizarImagenPropiedad(idPropiedad);
+        }
+    });
+});
+
+// ===================================================
+// CONFIGURAR PERMISOS POR ROL
+// ===================================================
+function configurarPermisosPorRol() {
+    console.log('🔐 Configurando permisos por rol...');
+    
+    if (esAgente) {
+        // Deshabilitar campo de asistente
+        $('#asisenteFieldContainer').addClass('agent-readonly');
+        $('#ddlAsistenteEdit').prop('readonly', true).css({
+            'background-color': '#272727',
+            'color': '#ccc',
+            'cursor': 'not-allowed'
+        });
+        $('#asisenteReadonlyNote').show();
+        
+        // Deshabilitar campo de fecha de contacto
+        $('#fechaContactoFieldContainer').addClass('agent-readonly');
+        $('#inputFechaContacto').prop('readonly', true).css({
+            'background-color': '#272727',
+            'color': '#ccc',
+            'cursor': 'not-allowed'
+        });
+        $('#fechaReadonlyNote').show();
+        
+        // Deshabilitar campo de seguimiento
+        $('#seguimientoFieldContainer').addClass('agent-readonly-seguimiento');
+        $('#ddlSeguimientoEdit').prop('readonly', true).css({
+            'background-color': '#272727',
+            'color': '#ccc',
+            'cursor': 'not-allowed',
+            'pointer-events': 'none'
+        });
+        $('#seguimientoReadonlyNote').show();
+        
+        // Mostrar checkbox de "Lead Terminado"
+        $('#leadTerminadoRow').show();
+        
+        console.log('✅ Campos restringidos para agente configurados');
+    } else {
+        console.log('✅ Sin restricciones - usuario es administrador');
+    }
+}
+
+// ===================================================
+// INICIALIZAR CHECKBOX DE VISITA REALIZADA
+// ===================================================
+function inicializarCheckboxVisita() {
+    var $visitaCheckbox = $('#Visita_Realizada');
+    var visitaInicialmenteChecked = $visitaCheckbox.is(':checked');
+    
+    if (visitaInicialmenteChecked) {
+        $visitaCheckbox.prop('disabled', true);
+        console.log('✅ Checkbox de visita ya estaba marcado - mantener deshabilitado');
+    }
+    
+    $visitaCheckbox.on('change', function() {
+        if ($(this).is(':checked')) {
+            $(this).prop('disabled', true);
+            $(this).closest('.visita-realizada-container').find('.checkbox-help')
+                .removeClass('checkbox-help')
+                .addClass('checkbox-help confirmed')
+                .html('<i class="fas fa-check-circle"></i> Visita confirmada - No se puede desmarcar');
+            
+            console.log('✅ Checkbox de visita marcado - ahora deshabilitado permanentemente');
+        }
+    });
+    
+    $visitaCheckbox.on('click', function(e) {
+        if ($(this).prop('disabled')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+}
+
+// ===================================================
+// INICIALIZAR CHECKBOX DE LEAD TERMINADO (AGENTES)
+// ===================================================
+function inicializarCheckboxLeadTerminado() {
+    var $leadTerminadoCheckbox = $('#leadTerminado');
+    var leadYaTerminado = $leadTerminadoCheckbox.is(':checked');
+    
+    if (leadYaTerminado) {
+        $leadTerminadoCheckbox.prop('disabled', true);
+        $('#leadTerminadoHelp').html('<i class="fas fa-check-circle"></i> Lead ya marcado como terminado - No se puede desmarcar')
+            .css('color', '#e17055');
+        console.log('✅ Lead ya estaba terminado - mantener checkbox deshabilitado');
+    }
+    
+    $leadTerminadoCheckbox.on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#seguimientoHidden').val('Terminado');
+            $(this).prop('disabled', true);
+            $('#leadTerminadoHelp')
+                .html('<i class="fas fa-check-circle"></i> Lead ya marcado como terminado - No se puede desmarcar')
+                .css('color', '#e17055');
+            
+            console.log('✅ Lead marcado como terminado - seguimiento actualizado');
+        }
+    });
+    
+    $leadTerminadoCheckbox.on('click', function(e) {
+        if ($(this).prop('disabled')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+}
+
+// ===================================================
+// NOTA: Las funciones de carga de datos están en wwwroot/js/clientesleads.js:
+// - cargarDatosInicialesModificar()
+// - cargarPropiedadesModificar()
+// - cargarAsistentesModificar()
+// - cargarPortalesModificar()
+// - actualizarImagenPropiedad()
+// ===================================================
+
+
+// =====================================================
+// FUNCIONALIDAD DE REGISTRO DE ACCIONES DEL AGENTE
+// =====================================================
+
+$(document).ready(function() {
+    // Variables globales para seguimiento activo
+    var idClienteActual = '@(Model.ID_Cliente ?? "")';
+    var agenteActual = '@(User.Identity?.Name ?? "")';
+    var idPropiedadActual = '@(Model.ID_Unidad_Consultada ?? "")';
+    
+    console.log('🔧 Inicializando funcionalidad de registro de acciones del agente');
+    console.log('ID Cliente:', idClienteActual);
+    console.log('Agente:', agenteActual);
+    console.log('ID Propiedad:', idPropiedadActual);
+    
+    // Cargar acciones al inicializar (con retraso para asegurar que el modal esté listo)
+    setTimeout(function() {
+        if (idClienteActual && idClienteActual !== '') {
+            cargarAccionesCliente();
+        }
+    }, 500);
+    
+    // Event listener para el botón de registrar acción
+    $('#btnRegistrarAccion').on('click', function() {
+        registrarAccionAgente();
+    });
+    
+    // Event listener para el botón de cargar acciones
+    $('#btnCargarAcciones').on('click', function() {
+        cargarAccionesCliente();
+    });
+    
+    // Función para registrar acción del agente
+    function registrarAccionAgente() {
+        console.log('📝 Registrando acción del agente...');
+        
+        // Validar campos obligatorios
+        var tipoAccion = $('#tipoAccion').val();
+        var resultado = $('#resultadoAccion').val();
+        var descripcion = $('#descripcionAccion').val();
+        
+        if (!tipoAccion) {
+            mostrarMensaje('Por favor seleccione el tipo de acción', 'error');
+            return;
+        }
+        
+        if (!resultado) {
+            mostrarMensaje('Por favor seleccione el resultado', 'error');
+            return;
+        }
+        
+        if (!descripcion || descripcion.trim() === '') {
+            mostrarMensaje('Por favor ingrese la descripción de la acción', 'error');
+            return;
+        }
+        
+        // Deshabilitar botón durante el proceso
+        var $btn = $('#btnRegistrarAccion');
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registrando...');
+        
+        // Preparar datos
+        var datos = {
+            Agente: agenteActual,
+            ID_Cliente: idClienteActual,
+            Descripcion_Accion: descripcion.trim(),
+            Tipo_Accion: tipoAccion,
+            Resultado: resultado,
+            ID_Propiedad: idPropiedadActual || null,
+            Fecha_Proximo_Contacto: $('#fechaProximoContacto').val() || null
+        };
+        
+        console.log('📤 Enviando datos:', datos);
+        
+        // Realizar petición AJAX
+        $.ajax({
+            url: '/ClientesLeads/RegistrarAccionAgente',
+            type: 'POST',
+            data: datos,
+            success: function(response) {
+                console.log('📥 Respuesta recibida:', response);
+                
+                if (response && response.status === 'success') {
+                    mostrarMensaje('✅ Acción registrada correctamente', 'success');
+                    limpiarFormularioAccion();
+                    cargarAccionesCliente();
+                    
+                    // Si el lead estaba en estado "Nuevo", se habrá cambiado a "En Seguimiento" automáticamente
+                    var estadoActual = $('#ddlSeguimientoEdit').val();
+                    if (estadoActual === 'Nuevo') {
+                        $('#ddlSeguimientoEdit').val('En Seguimiento');
+                        mostrarMensaje('ℹ️ El estado del lead se cambió automáticamente a "En Seguimiento"', 'info');
+                    }
+                } else {
+                    mostrarMensaje('❌ Error al registrar acción: ' + (response ? response.message : 'Error desconocido'), 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ Error de conexión:', xhr, status, error);
+                mostrarMensaje('❌ Error de conexión: ' + error, 'error');
+            },
+            complete: function() {
+                // Rehabilitar botón
+                $btn.prop('disabled', false).html('<i class="fas fa-save"></i> Registrar Acción');
+            }
+        });
+    }
+    
+    // Función para cargar acciones del cliente
+    function cargarAccionesCliente() {
+        console.log('📋 Cargando acciones del cliente:', idClienteActual);
+        
+        if (!idClienteActual || idClienteActual === '') {
+            console.log('⚠️ No hay ID de cliente, no se pueden cargar acciones');
+            return;
+        }
+        
+        var $lista = $('#listaAcciones');
+        $lista.html('<div style="text-align: center; color: #888; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Cargando acciones...</div>');
+        
+        $.ajax({
+            url: '/ClientesLeads/ObtenerAccionesCliente',
+            type: 'GET',
+            data: { idCliente: idClienteActual },
+            success: function(response) {
+                console.log('📥 Acciones recibidas:', response);
+                console.log('📊 Tipo de respuesta:', typeof response);
+                console.log('📊 Es array?:', Array.isArray(response));
+                console.log('📊 Cantidad de elementos:', response ? response.length : 0);
+                
+                if (response && Array.isArray(response) && response.length > 0) {
+                    console.log('✅ Mostrando', response.length, 'acciones');
+                    mostrarAcciones(response);
+                } else {
+                    console.log('⚠️ No hay acciones para mostrar');
+                    $lista.html(`
+                        <div style="text-align: center; color: #888; font-size: 12px; padding: 20px;">
+                            <i class="fas fa-info-circle"></i>
+                            <p style="margin: 5px 0;">No hay acciones registradas</p>
+                            <p style="margin: 0; font-size: 11px;">Las acciones se mostrarán aquí una vez registradas</p>
+                        </div>
+                    `);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ Error al cargar acciones:', xhr, status, error);
+                $lista.html(`
+                    <div style="text-align: center; color: #dc3545; font-size: 12px; padding: 20px;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p style="margin: 5px 0;">Error al cargar acciones</p>
+                        <p style="margin: 0; font-size: 11px;">${error}</p>
+                    </div>
+                `);
+            }
+        });
+    }
+    
+    // Función para mostrar acciones en la lista
+    function mostrarAcciones(acciones) {
+        console.log('🎨 Renderizando acciones en la lista:', acciones.length);
+        
+        var $lista = $('#listaAcciones');
+        var html = '';
+        
+        acciones.forEach(function(accion, index) {
+            console.log(`📝 Acción ${index + 1}:`, accion);
+            
+            // Manejar propiedades en camelCase
+            var fechaAccion = accion.fecha_Accion || accion.Fecha_Accion;
+            console.log(`  - Fecha Acción: ${fechaAccion}`);
+            
+            var fecha = new Date(fechaAccion).toLocaleDateString('es-ES');
+            var hora = new Date(fechaAccion).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            var tipoAccion = accion.tipo_Accion || accion.Tipo_Accion || '';
+            var resultado = accion.resultado || accion.Resultado || '';
+            var descripcion = accion.descripcion_Accion || accion.Descripcion_Accion || '';
+            var agente = accion.agente || accion.Agente || '';
+            var fechaProximo = accion.fecha_Proximo_Contacto || accion.Fecha_Proximo_Contacto;
+            
+            var colorResultado = '';
+            switch(resultado) {
+                case 'Pendiente': colorResultado = '#ffc107'; break;
+                case 'Completado': colorResultado = '#28a745'; break;
+                default: colorResultado = '#6c757d'; break;
+            }
+            
+            html += `
+                <div style="background-color: #2a2a2a; border-radius: 6px; padding: 12px; margin-bottom: 8px; border-left: 4px solid ${colorResultado};">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                <span style="background-color: #3498db; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 8px;">
+                                    ${tipoAccion}
+                                </span>
+                                <span style="background-color: ${colorResultado}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">
+                                    ${resultado}
+                                </span>
+                            </div>
+                            <div style="color: #e0e0e0; font-size: 12px; line-height: 1.4;">
+                                ${descripcion}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; flex-wrap: wrap;">
+                        <span>
+                            <i class="fas fa-user"></i> ${agente}
+                        </span>
+                        <span>
+                            <i class="fas fa-calendar"></i> ${fecha} ${hora}
+                        </span>
+                        ${fechaProximo ? `
+                            <span style="color: #f39c12;">
+                                <i class="fas fa-clock"></i> Próximo: ${new Date(fechaProximo).toLocaleDateString('es-ES')}
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        
+        $lista.html(html);
+    }
+    
+    // Función para limpiar formulario
+    function limpiarFormularioAccion() {
+        $('#tipoAccion').val('');
+        $('#resultadoAccion').val('');
+        $('#descripcionAccion').val('');
+        $('#fechaProximoContacto').val('');
+    }
+    
+    // Función para mostrar mensajes
+    function mostrarMensaje(mensaje, tipo) {
+        var $mensaje = $('#mensajeAccion');
+        var color, bgColor, icono;
+        
+        if (tipo === 'success') {
+            color = '#28a745';
+            bgColor = 'rgba(40, 167, 69, 0.1)';
+            icono = 'check-circle';
+        } else if (tipo === 'info') {
+            color = '#17a2b8';
+            bgColor = 'rgba(23, 162, 184, 0.1)';
+            icono = 'info-circle';
+        } else {
+            color = '#dc3545';
+            bgColor = 'rgba(220, 53, 69, 0.1)';
+            icono = 'exclamation-triangle';
+        }
+        
+        $mensaje.html(`
+            <div style="color: ${color}; padding: 10px; background-color: ${bgColor}; border-radius: 6px; border-left: 4px solid ${color};">
+                <i class="fas fa-${icono}"></i> ${mensaje}
+            </div>
+        `).show();
+        
+        // Ocultar mensaje después de 5 segundos
+        setTimeout(function() {
+            $mensaje.fadeOut();
+        }, 5000);
+    }
+});
+</script>
+

@@ -1,0 +1,222 @@
+/* CSS para Sincronización de Portales 2 */
+
+.sincronizacion-container {
+    background-color: #1a1a1a;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+}
+
+.header-section {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.header-section h2 {
+    margin: 0 0 10px 0;
+    color: white;
+}
+
+.header-section p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+/* Estadísticas */
+.stat-card {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card.success {
+    background: linear-gradient(135deg, #27ae60, #229954);
+}
+
+.stat-card.warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.stat-card.info {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Tarjetas */
+.card {
+    background-color: #2d3436;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #3a3a3a;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid #444;
+}
+
+.card-header h5 {
+    margin: 0;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Formularios */
+.form-control, .form-select {
+    background-color: #404040 !important;
+    border: 1px solid #555 !important;
+    color: white !important;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #4a4a4a !important;
+    border-color: #f093fb !important;
+    color: white !important;
+}
+
+.form-label {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Tarjetas de Propiedades */
+.property-card {
+    background-color: #2d3436;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.property-image {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    background-color: #34495e;
+}
+
+.property-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #bdc3c7;
+}
+
+.no-image i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.property-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.property-info {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.property-id {
+    font-size: 0.85rem;
+    color: #3498db;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.property-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: white;
+    line-height: 1.3;
+    min-height: 50px;
+}
+
+.property-details {
+    flex: 1;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: #bdc3c7;
+    font-size: 0.9rem;
+}
+
+.detail-item i {
+    margin-right: 8px;
+    color: #3498db;
+    width: 16px;
+}
+
+.property-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #444;
+}
+
+.property-actions .btn {
+    flex: 1;
+}
+
+.alert-info {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+}

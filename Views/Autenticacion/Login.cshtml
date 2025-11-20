@@ -1,0 +1,95 @@
+@model Inmobiliaria.Net8.DTOs.LoginRequest
+
+@{
+    ViewData["Title"] = "Iniciar Sesión - Sistema Inmobiliario";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true">
+    
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true">
+    
+    <!-- Estilos personalizados de Login -->
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true">
+</head>
+<body>
+    <div class="login-container fade-in">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-building"></i>
+            </div>
+            <h1 class="login-title">Bienvenido</h1>
+            <p class="login-subtitle">Sistema de Gestión Inmobiliaria</p>
+        </div>
+
+        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+        <div id="successMessage" class="alert alert-success d-none" role="alert"></div>
+
+        <form id="loginForm" asp-action="Login" asp-controller="Autenticacion" method="post">
+            @Html.AntiForgeryToken()
+            
+            <div class="mb-3">
+                <label asp-for="Correo_Electronico" class="form-label">Correo Electrónico</label>
+                <div class="input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input asp-for="Correo_Electronico" class="form-control" type="email" placeholder="tu@email.com" autocomplete="email" />
+                </div>
+                <span asp-validation-for="Correo_Electronico" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Clave" class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input asp-for="Clave" class="form-control" type="password" placeholder="••••••••" autocomplete="current-password" />
+                </div>
+                <span asp-validation-for="Clave" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <div class="form-check">
+                    <input asp-for="RecordarUsuario" class="form-check-input" type="checkbox" />
+                    <label asp-for="RecordarUsuario" class="form-check-label">
+                        Recordar mis datos
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-login" id="btnLogin">
+                <span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>
+                <span id="btnText">Iniciar Sesión</span>
+            </button>
+        </form>
+
+        <div class="forgot-password">
+            <a href="#" onclick="mostrarMensajeRecuperacion(); return false;">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Rosch - Sistema de Gestión Inmobiliaria</p>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
+    
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+
+    <!-- Script personalizado de Login -->
+    <script src="~/js/login.js" asp-append-version="true"></script>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>

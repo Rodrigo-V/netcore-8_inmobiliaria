@@ -1,0 +1,173 @@
+@using Inmobiliaria.Net8.DTOs
+@{
+    ViewData["Title"] = "Sincronización Portales 2 - Tarjetas";
+    var propiedades = ViewBag.Propiedades as List<PropiedadConClics> ?? new List<PropiedadConClics>();
+    var estadisticas = ViewBag.Estadisticas as EstadisticasGenerales;
+}
+
+<link rel="stylesheet" href="~/css/sincronizacionportales2.css" />
+
+<div class="sincronizacion-container">
+    <!-- Header -->
+    <div class="header-section">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2><i class="fas fa-th-large"></i> Sincronización Portales 2 - Tarjetas</h2>
+                <p>Vista de tarjetas de propiedades con clics por portal</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    @if (estadisticas != null)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">@estadisticas.TotalPropiedades</div>
+                    <div class="stat-label">Total Propiedades</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card success">
+                    <div class="stat-number">@estadisticas.TotalClics</div>
+                    <div class="stat-label">Total Clics</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card warning">
+                    <div class="stat-number">@estadisticas.PropiedadesConClics</div>
+                    <div class="stat-label">Con Clics</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card info">
+                    <div class="stat-number">@estadisticas.PromedioClicsPorPropiedad.ToString("F1")</div>
+                    <div class="stat-label">Promedio</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5><i class="fas fa-search"></i> Búsqueda y Filtros</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" action="@Url.Action("Index")" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Buscar Propiedad</label>
+                    <input type="text" name="buscarPropiedad" class="form-control" 
+                           value="@ViewBag.BuscarPropiedad" placeholder="ID, título o dirección">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Ordenar Por</label>
+                    <select name="ordenarPor" class="form-select">
+                        <option value="clicks" selected="@(ViewBag.OrdenarPor == "clicks")">Más Clics</option>
+                        <option value="precio" selected="@(ViewBag.OrdenarPor == "precio")">Precio</option>
+                        <option value="nombre" selected="@(ViewBag.OrdenarPor == "nombre")">Nombre</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grid de Propiedades -->
+    <div class="row" id="propiedadesContainer">
+        @if (propiedades.Any())
+        {
+            @foreach (var propiedad in propiedades)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                    <div class="property-card">
+                        <!-- Imagen -->
+                        <div class="property-image">
+                            @if (!string.IsNullOrEmpty(propiedad.ImagenUrl))
+                            {
+                                <img src="@propiedad.ImagenUrl" alt="@propiedad.Titulo" 
+                                     onerror="this.src='https://via.placeholder.com/400x300?text=Sin+Imagen'">
+                            }
+                            else
+                            {
+                                <div class="no-image">
+                                    <i class="fas fa-image"></i>
+                                    <p>Sin imagen</p>
+                                </div>
+                            }
+                            <div class="property-badge">
+                                <i class="fas fa-mouse-pointer"></i> @propiedad.TotalClics clics
+                            </div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="property-info">
+                            <div class="property-id">@propiedad.ID_Propiedad</div>
+                            <h5 class="property-title">@propiedad.Titulo</h5>
+                            
+                            <div class="property-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>@propiedad.Comuna, @propiedad.Region</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-home"></i>
+                                    <span>@propiedad.TipoPropiedad</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span>$@propiedad.Valor.ToString("N0")</span>
+                                </div>
+                                @if (propiedad.UltimoClick.HasValue)
+                                {
+                                    <div class="detail-item">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Último: @propiedad.UltimoClick.Value.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Acciones -->
+                            <div class="property-actions">
+                                <a href="@Url.Action("Index", "Propiedad")" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i> Ver
+                                </a>
+                                <button class="btn btn-sm btn-info" onclick="verDetallesClics('@propiedad.ID_Propiedad')">
+                                    <i class="fas fa-chart-bar"></i> Clics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No se encontraron propiedades.
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="~/js/sincronizacionportales2.js"></script>
+<script>
+    function verDetallesClics(idPropiedad) {
+        Swal.fire({
+            title: 'Detalles de Clics',
+            html: `<p>Detalles de clics para propiedad: <strong>${idPropiedad}</strong></p>
+                   <p class="text-muted">Funcionalidad en desarrollo</p>`,
+            icon: 'info'
+        });
+    }
+</script>

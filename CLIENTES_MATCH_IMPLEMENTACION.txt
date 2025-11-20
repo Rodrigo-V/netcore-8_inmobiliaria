@@ -1,0 +1,223 @@
+============================================
+   CLIENTES MATCH - IMPLEMENTACIÓN COMPLETA
+============================================
+
+FECHA: 2025-01-07
+MÓDULO: Clientes Match
+DESCRIPCIÓN: Sistema para gestionar clientes convertidos desde Leads
+
+
+============================================
+   ARCHIVOS CREADOS
+============================================
+
+📂 SQL (Stored Procedures) - 6 archivos:
+  ✓ PP_psnp_ClientesMatch_SelectAll.sql
+  ✓ PP_psnp_ClientesMatch_SelectxPK.sql
+  ✓ PP_psnp_ClientesMatch_Insert.sql
+  ✓ PP_psnp_ClientesMatch_Update.sql
+  ✓ PP_psnp_ClientesMatch_Delete.sql
+  ✓ 00_Ejecutar_Todos_SPs_ClientesMatch.sql (Script maestro)
+
+📂 DTOs - 1 archivo:
+  ✓ DTOs/ClienteMatch.cs
+    - ClienteMatch (modelo principal)
+    - FiltroClientesMatch (filtros de búsqueda)
+
+📂 Services - 1 archivo:
+  ✓ Services/ClientesMatchService.cs
+    - ObtenerTodosAsync()
+    - ObtenerPorIdAsync()
+    - ActualizarAsync()
+    - EliminarAsync()
+    - ContarTotalAsync()
+
+📂 Controllers - 1 archivo:
+  ✓ Controllers/ClientesMatchController.cs
+    - Index()
+    - Listar()
+    - ObtenerPorId()
+    - Actualizar()
+    - Eliminar()
+    - ContarTotal()
+
+📂 Views/ClientesMatch - 2 archivos:
+  ✓ Index.cshtml (Vista principal con DataTable)
+  ✓ ModificarModal.cshtml (Modal para editar)
+
+📂 wwwroot/css - 1 archivo:
+  ✓ clientesmatch.css (Estilos del módulo)
+
+📂 wwwroot/js - 1 archivo:
+  ✓ clientesmatch.js (Funcionalidad JavaScript)
+
+
+============================================
+   ARCHIVOS MODIFICADOS
+============================================
+
+✓ Program.cs
+  - Agregado: builder.Services.AddScoped<ClientesMatchService>();
+
+✓ Views/Shared/_Layout.cshtml
+  - Agregado enlace en menú: "Clientes Match"
+
+
+============================================
+   CARACTERÍSTICAS IMPLEMENTADAS
+============================================
+
+✓ Listar Clientes Match con filtros avanzados
+✓ Ver detalles completos de un Cliente Match
+✓ Modificar datos de Cliente Match existente
+✓ Eliminar Cliente Match
+✓ DataTables con paginación, ordenamiento y búsqueda
+✓ Validación de formularios en tiempo real
+✓ Diseño responsive (móvil y desktop)
+✓ Badges de colores según tipo de match
+✓ Integración con sistema de conversión de Leads
+✓ Logs detallados en consola para debugging
+
+
+============================================
+   IMPORTANTE: FLUJO DE TRABAJO
+============================================
+
+⚠️  Los Clientes Match NO se crean manualmente
+
+FLUJO:
+1. Un cliente contacta como Lead
+2. Se registra en "Clientes Leads"
+3. Cuando avanza en el proceso, se convierte a "Match"
+4. El sistema automáticamente crea el registro en Clientes_Match
+5. Desde "Clientes Match" solo se MODIFICA o ELIMINA
+
+
+============================================
+   PRÓXIMOS PASOS PARA USAR
+============================================
+
+1. EJECUTAR LOS STORED PROCEDURES
+   Opción A - Individual:
+   - Abrir cada archivo .sql en SQL Server Management Studio
+   - Ejecutarlos uno por uno
+
+   Opción B - Automático:
+   - Abrir SQL/00_Ejecutar_Todos_SPs_ClientesMatch.sql
+   - Ejecutar (creará todos los SPs)
+
+2. COMPILAR Y EJECUTAR LA APLICACIÓN
+   > cd C:\Users\rvilchez\Desktop\proySQL\Inmobiliaria.Net8
+   > dotnet build
+   > dotnet run
+
+3. ACCEDER AL MÓDULO
+   - Iniciar sesión en la aplicación
+   - Ir al menú lateral: GENERAL > Clientes Match
+
+4. PROBAR LA FUNCIONALIDAD
+   a) Ir a "Clientes Leads"
+   b) Seleccionar un Lead
+   c) Convertirlo a Match
+   d) Ir a "Clientes Match"
+   e) Verificar que aparece el cliente
+   f) Modificar sus datos
+   g) Ver que se actualizan correctamente
+
+
+============================================
+   ESTRUCTURA DE LA TABLA Clientes_Match
+============================================
+
+Campo                 Tipo            Descripción
+------------------    ------------    ------------------------
+ID_Interno           NVARCHAR(50)    ID único (PK)
+Tipo_Match           NVARCHAR(100)   Tipo de match
+Nombre               NVARCHAR(200)   Nombre completo
+Rut                  NVARCHAR(20)    RUT del cliente
+Datos_adjuntos       NVARCHAR(MAX)   Observaciones
+Direccion            NVARCHAR(200)   Dirección
+Comuna               NVARCHAR(100)   Comuna
+Estado_Civil         NVARCHAR(50)    Estado civil
+Profesion            NVARCHAR(100)   Profesión
+Telefono             NVARCHAR(20)    Teléfono
+Correo               NVARCHAR(100)   Email
+Giro_Razon_Social    NVARCHAR(200)   Giro o razón social
+
+
+============================================
+   ENDPOINTS API DISPONIBLES
+============================================
+
+GET  /ClientesMatch
+     → Vista principal
+
+GET  /ClientesMatch/Listar
+     → Lista todos los clientes match con filtros
+
+GET  /ClientesMatch/ObtenerPorId/{id}
+     → Obtiene un cliente match por ID
+
+PUT  /ClientesMatch/Actualizar
+     → Actualiza un cliente match
+
+DELETE /ClientesMatch/Eliminar/{id}
+     → Elimina un cliente match
+
+GET  /ClientesMatch/ContarTotal
+     → Cuenta total de clientes match
+
+
+============================================
+   TECNOLOGÍAS UTILIZADAS
+============================================
+
+Backend:
+- ASP.NET Core 8.0
+- C# 12
+- SQL Server
+- Stored Procedures
+
+Frontend:
+- HTML5
+- CSS3
+- JavaScript (jQuery)
+- Bootstrap 5
+- DataTables.js
+- SweetAlert2
+- Font Awesome
+
+Patrones:
+- MVC (Model-View-Controller)
+- DTO (Data Transfer Objects)
+- Service Layer
+- Repository Pattern (vía Stored Procedures)
+
+
+============================================
+   NOTAS ADICIONALES
+============================================
+
+- Todos los SPs siguen el estándar PP_psnp_*
+- No se usa ORM (Entity Framework), solo SPs
+- Separación de CSS y JS en archivos externos
+- Logging implementado en todos los métodos
+- Manejo de errores con try-catch
+- Validación en cliente y servidor
+- Código comentado para mantenibilidad
+
+
+============================================
+   CONTACTO Y SOPORTE
+============================================
+
+Sistema: Inmobiliaria.Net8
+Versión: 1.0
+Autor: Sistema desarrollado para Rosch
+Fecha implementación: Enero 2025
+
+
+============================================
+              FIN DEL DOCUMENTO
+============================================
+

@@ -1,0 +1,367 @@
+@{
+    ViewData["Title"] = "Gestión de Leads";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var usuarioRol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+}
+
+<!-- Estilos personalizados de ClientesLeads -->
+<link rel="stylesheet" href="~/css/clientesleads.css" asp-append-version="true">
+
+<div data-usuario-rol="@usuarioRol">
+    <!-- Botón flotante para mostrar/ocultar estadísticas -->
+    <div class="stats-toggle-floating">
+        <button id="toggleStats" class="btn-toggle-floating">
+            <i class="fas fa-chevron-up"></i>
+        </button>
+        <span class="toggle-tooltip" id="toggleTooltip">Ocultar Estadísticas</span>
+    </div>
+
+    <!-- Contenedor colapsable de estadísticas -->
+    <div id="statsContainer" class="stats-main-container">
+        <!-- Tarjetas de Estadísticas -->
+        <div class="stats-container">
+            <!-- Tarjeta 1: Estados de Mis Leads -->
+            <div class="stats-card total-custom">
+                <div class="stats-header">
+                    <div>
+                        <h3 class="stats-title">Estados de Mis Leads</h3>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                </div>
+                <div class="stats-inline-header">
+                    <span class="stats-value-inline" id="totalMisLeads">0</span>
+                    <span class="stats-label-inline">mis leads</span>
+                </div>
+                <div class="stats-progress-container">
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Nuevo</span>
+                            <span class="progress-value" id="misLeadsNuevo">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-nuevo" id="progressMisLeadsNuevo"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">En Seguimiento</span>
+                            <span class="progress-value" id="misLeadsEnSeguimiento">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-seguimiento" id="progressMisLeadsEnSeguimiento"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Con Visita</span>
+                            <span class="progress-value" id="misLeadsConVisita">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-visita" id="progressMisLeadsConVisita"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">En Espera</span>
+                            <span class="progress-value" id="misLeadsEnEspera">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-espera" id="progressMisLeadsEnEspera"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-header">
+                            <span class="progress-label">Terminado</span>
+                            <span class="progress-value" id="misLeadsTerminado">0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-terminado" id="progressMisLeadsTerminado"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2: Gráfico de Torta de Mis Leads -->
+            <div class="stats-card grafico-leads">
+                <div class="stats-header">
+                    <div>
+                        <h3 class="stats-title">Distribución de Mis Leads</h3>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="misLeadsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles de la tabla -->
+    <div class="table-controls">
+        <div>
+            <h3 style="color: white; margin: 0;">
+                <i class="fas fa-user-plus"></i> Gestión de Leads
+            </h3>
+        </div>
+        <div>
+            @if (usuarioRol == "Administrador")
+            {
+                <button class="btn-add-lead" onclick="abrirModalAgregar()" id="btnNuevoLead">
+                    <i class="fas fa-plus"></i> Nuevo Lead
+                </button>
+            }
+            else
+            {
+                <div class="alert alert-info" style="margin: 0; padding: 8px 12px; font-size: 14px; background-color: rgba(23, 162, 184, 0.1); border: 1px solid rgba(23, 162, 184, 0.3); color: #17a2b8;">
+                    <i class="fas fa-info-circle"></i> Solo los administradores pueden crear nuevos leads
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Pestañas para las grillas -->
+    <div class="tabs-container">
+        <ul class="nav nav-tabs leads-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="mis-leads-tab" data-bs-toggle="tab" href="#mis-leads" role="tab" aria-controls="mis-leads" aria-selected="true">
+                    <i class="fas fa-user-check"></i> Mis Leads
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="todos-leads-tab" data-bs-toggle="tab" href="#todos-leads" role="tab" aria-controls="todos-leads" aria-selected="false">
+                    <i class="fas fa-list"></i> Todos los Leads
+                </a>
+            </li>
+        </ul>
+        
+        <div class="tab-content leads-tab-content">
+            <!-- Pestaña: Mis Leads -->
+            <div class="tab-pane fade show active" id="mis-leads" role="tabpanel" aria-labelledby="mis-leads-tab">
+                <div class="table-container">
+                    <table id="tablaMisLeads" class="display" cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>ID Cliente</th>
+                                <th class="columna-imagen">Imagen</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Portal</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Los datos se cargan vía AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pestaña: Todos los Leads -->
+            <div class="tab-pane fade" id="todos-leads" role="tabpanel" aria-labelledby="todos-leads-tab">
+                <div class="table-container">
+                    <table id="tablaLeads" class="display" cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>ID Cliente</th>
+                                <th class="columna-imagen">Imagen</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Portal</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Los datos se cargan vía AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Modal para agregar lead (TEMA OSCURO) -->
+    <div class="modal fade" id="modalAgregarLead" tabindex="-1" aria-labelledby="modalAgregarLeadLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background-color: #1a1a1a; color: #ffffff; border: 1px solid #404040;">
+                <div class="modal-header" style="background-color: #2a2a2a; color: white; border-bottom: 1px solid #404040;">
+                    <h5 class="modal-title" id="modalAgregarLeadLabel">
+                        <i class="fas fa-user-plus"></i> Agregar Nuevo Lead
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="background-color: #1a1a1a; color: #ffffff; max-height: 70vh; overflow-y: auto;">
+                    <!-- Contenido se carga dinámicamente -->
+                </div>
+                <div class="modal-footer" style="background-color: #2a2a2a; border-top: 1px solid #404040;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #404040; border-color: #404040;">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnGuardarLead">
+                        <i class="fas fa-save"></i> Guardar Lead
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal para modificar lead (TEMA OSCURO) -->
+<div class="modal fade" id="modalModificarLead" tabindex="-1" aria-labelledby="modalModificarLeadLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #1a1a1a; color: #ffffff; border: 1px solid #404040;">
+            <div class="modal-header" style="background-color: #2a2a2a; color: white; border-bottom: 1px solid #404040;">
+                <h5 class="modal-title" id="modalModificarLeadLabel">
+                    <i class="fas fa-edit"></i> Modificar Lead
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="background-color: #1a1a1a; color: #ffffff; max-height: 70vh; overflow-y: auto;">
+                <!-- Contenido se carga dinámicamente -->
+            </div>
+            <div class="modal-footer" style="background-color: #2a2a2a; border-top: 1px solid #404040;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #404040; border-color: #404040;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="btnGuardarCambiosLead">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para ver detalle de lead (TEMA OSCURO) -->
+<div class="modal fade" id="modalDetalleLead" tabindex="-1" aria-labelledby="modalDetalleLeadLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #1a1a1a; color: #ffffff; border: 1px solid #404040;">
+            <div class="modal-header" style="background-color: #17a2b8; color: white; border-bottom: 1px solid #404040;">
+                <h5 class="modal-title" id="modalDetalleLeadLabel">
+                    <i class="fas fa-eye"></i> Detalle del Lead
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="background-color: #1a1a1a; color: #ffffff; max-height: 70vh; overflow-y: auto;">
+                <!-- Contenido se carga dinámicamente -->
+            </div>
+            <div class="modal-footer" style="background-color: #2a2a2a; border-top: 1px solid #404040;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #404040; border-color: #404040;">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmar conversión a Cliente Match (TEMA OSCURO) -->
+<div class="modal fade" id="modalConvertirMatch" tabindex="-1" aria-labelledby="modalConvertirMatchLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #1a1a1a; color: #ffffff; border: 1px solid #404040;">
+            <div class="modal-header" style="background-color: #ff9800; color: white; border-bottom: 1px solid #404040;">
+                <h5 class="modal-title" id="modalConvertirMatchLabel">
+                    <i class="fas fa-exchange-alt"></i> Convertir Lead a Cliente Match
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="background-color: #1a1a1a; color: #ffffff;">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>¿Está seguro que desea convertir este lead en un Cliente Match?</strong><br>
+                    Esta acción creará un nuevo registro en la tabla de Cliente Match con los datos del lead.
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><strong>ID Cliente:</strong></label>
+                            <p id="modalMatch_IdCliente" class="text-white"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><strong>Portal:</strong></label>
+                            <p id="modalMatch_Portal" class="text-white"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><strong>Nombres:</strong></label>
+                            <p id="modalMatch_Nombres" class="text-white"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><strong>Apellidos:</strong></label>
+                            <p id="modalMatch_Apellidos" class="text-white"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><strong>Email:</strong></label>
+                            <p id="modalMatch_Email" class="text-white"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label><strong>Teléfono:</strong></label>
+                            <p id="modalMatch_Telefono" class="text-white"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label><strong>Estado Actual:</strong></label>
+                            <p id="modalMatch_Estado" class="text-white"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Importante:</strong><br>
+                    Una vez convertido, el lead pasará al estado <strong>"RESERVA"</strong> y no podrá ser modificado ni eliminado.
+                </div>
+            </div>
+            <div class="modal-footer" style="background-color: #2a2a2a; border-top: 1px solid #404040;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #404040; border-color: #404040;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-warning" id="btnConfirmarConversion" style="background-color: #ff9800; border-color: #ff9800;">
+                    <i class="fas fa-check"></i> Confirmar Conversión
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+<!-- Cierre del div principal con data-usuario-rol -->
+
+@section Scripts {
+    <!-- DataTables JS Local -->
+    <script src="~/lib/datatables/jquery.dataTables.min.js" asp-append-version="true"></script>
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Script personalizado de ClientesLeads -->
+    <script src="~/js/clientesleads.js" asp-append-version="true"></script>
+}

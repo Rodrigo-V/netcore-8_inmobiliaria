@@ -1,0 +1,308 @@
+/* CSS para Sincronización de Portales */
+
+.sincronizacion-container {
+    background-color: #1a1a1a;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+}
+
+.header-section {
+    background-color: #2d3436;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-left: 4px solid #667eea;
+}
+
+.header-section h2 {
+    margin: 0 0 5px 0;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.header-section p {
+    margin: 0;
+    opacity: 0.8;
+    font-size: 0.9rem;
+    color: #e0e0e0;
+}
+
+.card {
+    background-color: #2d3436;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #3a3a3a;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid #444;
+}
+
+.card-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-control, .form-select {
+    background-color: #404040 !important;
+    border: 1px solid #555 !important;
+    color: white !important;
+    padding: 10px;
+}
+
+.form-control::placeholder {
+    color: #888;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #4a4a4a !important;
+    border-color: #667eea !important;
+    color: white !important;
+}
+
+.form-label {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.btn-primary {
+    background-color: #667eea;
+    border: none;
+    padding: 10px 20px;
+}
+
+.btn-primary:hover {
+    background-color: #5568d3;
+}
+
+/* Estadísticas */
+.stat-card {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card.success {
+    background: linear-gradient(135deg, #27ae60, #229954);
+}
+
+.stat-card.warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.stat-card.info {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Tablas */
+.table-dark {
+    background-color: #2d3436;
+    color: white;
+}
+
+.table-dark thead {
+    background-color: #3a3a3a;
+}
+
+.table-dark tbody tr:hover {
+    background-color: #3a3a3a;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.bg-success {
+    background-color: #27ae60 !important;
+}
+
+.alert-info {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+}
+
+/* Estilos para DataTables */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    color: #ffffff !important;
+}
+
+/* Asegurar que el texto de los controles de DataTables sea blanco */
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #ffffff !important;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    border: 1px solid #444 !important;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    border: 1px solid #444 !important;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #667eea !important;
+    outline: none;
+}
+
+/* Switch personalizado */
+.form-check-input {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+    margin-left: 5px;
+}
+
+/* Estilos para SweetAlert2 - Tema Oscuro */
+.swal2-popup {
+    background-color: #2d3436 !important;
+    color: #ffffff !important;
+    border: 1px solid #444 !important;
+}
+
+.swal2-title {
+    color: #ffffff !important;
+}
+
+.swal2-html-container {
+    color: #e0e0e0 !important;
+}
+
+.swal2-input,
+.swal2-textarea {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+.swal2-input:focus,
+.swal2-textarea:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+}
+
+.swal2-input::placeholder,
+.swal2-textarea::placeholder {
+    color: #888 !important;
+}
+
+.swal2-confirm {
+    background-color: #28a745 !important;
+    border: none !important;
+}
+
+.swal2-confirm:hover {
+    background-color: #218838 !important;
+}
+
+.swal2-cancel {
+    background-color: #6c757d !important;
+    border: none !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #5a6268 !important;
+}
+
+.swal2-close {
+    color: #ffffff !important;
+}
+
+.swal2-close:hover {
+    color: #dc3545 !important;
+}
+
+/* Loader de SweetAlert2 */
+.swal2-loader {
+    border-color: #667eea transparent #667eea transparent !important;
+}
+
+/* Iconos de SweetAlert2 */
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #28a745 !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+    border-color: rgba(40, 167, 69, 0.3) !important;
+}
+
+.swal2-icon.swal2-error {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.swal2-icon.swal2-warning {
+    border-color: #ffc107 !important;
+    color: #ffc107 !important;
+}
+
+.swal2-icon.swal2-info {
+    border-color: #17a2b8 !important;
+    color: #17a2b8 !important;
+}
+
+/* Labels dentro del modal de SweetAlert2 */
+.swal2-html-container label {
+    color: #e0e0e0 !important;
+}
+
+.swal2-html-container small {
+    color: #aaa !important;
+}

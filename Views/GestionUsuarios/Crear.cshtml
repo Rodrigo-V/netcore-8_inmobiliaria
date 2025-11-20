@@ -1,0 +1,203 @@
+@{
+    ViewData["Title"] = "Crear Nuevo Usuario";
+}
+
+<link rel="stylesheet" href="~/css/gestionusuarios.css" />
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-user-plus"></i>
+                                Crear Nuevo Usuario
+                            </h4>
+                            <small>Registrar un nuevo usuario en el sistema</small>
+                        </div>
+                        <a href="@Url.Action("Index")" class="btn btn-light">
+                            <i class="fas fa-arrow-left"></i>
+                            Volver a la Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Error:</strong> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Formulario -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit"></i>
+                        Información del Usuario
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="Crear" id="formCrearUsuario">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="row">
+                            <!-- Información Personal -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-user"></i>
+                                    Información Personal
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label for="nombres" class="form-label">Nombres <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nombres" name="nombres" required maxlength="100" placeholder="Ingrese los nombres">
+                                    <small class="form-text text-muted">Ej: Juan Carlos</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="apellidos" class="form-label">Apellidos <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="apellidos" name="apellidos" required maxlength="100" placeholder="Ingrese los apellidos">
+                                    <small class="form-text text-muted">Ej: Pérez González</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="correoElectronico" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" required maxlength="255" placeholder="usuario@empresa.com">
+                                    <small class="form-text text-muted">Este será el correo de acceso al sistema</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Información de Acceso -->
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-lock"></i>
+                                    Información de Acceso
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label for="rol" class="form-label">Rol <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="rol" name="rol" required>
+                                        <option value="">Seleccione un rol</option>
+                                        @if (ViewBag.Roles != null)
+                                        {
+                                            @foreach (var rol in ViewBag.Roles)
+                                            {
+                                                <option value="@rol">@rol</option>
+                                            }
+                                        }
+                                    </select>
+                                    <small class="form-text text-muted">Define los permisos del usuario en el sistema</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="clave" class="form-label">Clave <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="clave" name="clave" required minlength="6" placeholder="Mínimo 6 caracteres">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('clave')">
+                                            <i class="fas fa-eye" id="iconClave"></i>
+                                        </button>
+                                    </div>
+                                    <small class="form-text text-muted">Mínimo 6 caracteres</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="confirmarClave" class="form-label">Confirmar Clave <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirmarClave" name="confirmarClave" required minlength="6" placeholder="Repita la clave">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmarClave')">
+                                            <i class="fas fa-eye" id="iconConfirmarClave"></i>
+                                        </button>
+                                    </div>
+                                    <small class="form-text text-muted">Debe coincidir con la clave anterior</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Información de Roles -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="text-info mb-3">
+                                            <i class="fas fa-info-circle"></i>
+                                            Descripción de Roles
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="text-center">
+                                                    <div class="badge bg-warning p-2 mb-2">Administrador</div>
+                                                    <p class="small text-muted">Acceso completo al sistema. Gestiona usuarios, configuraciones y módulos.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="text-center">
+                                                    <div class="badge bg-info p-2 mb-2">Agente</div>
+                                                    <p class="small text-muted">Gestiona propiedades, clientes y seguimiento de leads.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="text-center">
+                                                    <div class="badge bg-secondary p-2 mb-2">Supervisor</div>
+                                                    <p class="small text-muted">Supervisa operaciones y gestiona reportes.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save"></i>
+                                    Crear Usuario
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg ms-2">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/gestionusuarios.js"></script>
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById('icon' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1));
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+

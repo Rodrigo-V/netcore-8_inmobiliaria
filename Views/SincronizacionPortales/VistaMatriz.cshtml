@@ -1,0 +1,203 @@
+@using Inmobiliaria.Net8.DTOs
+@{
+    ViewData["Title"] = "Vista Matriz - Sincronización de Portales";
+    var matrizData = ViewBag.MatrizData as List<MatrizSincronizacion> ?? new List<MatrizSincronizacion>();
+    var resumenPortales = ViewBag.ResumenPortales as List<ResumenPortal> ?? new List<ResumenPortal>();
+}
+
+<link rel="stylesheet" href="~/css/sincronizacionportales.css" />
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+
+<div class="sincronizacion-container">
+    <!-- Header -->
+    <div class="header-section">
+        <h2><i class="fas fa-th"></i> Vista Matriz - Sincronización de Portales</h2>
+        <p>Visualiza clics de propiedades por portal inmobiliario</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-filter"></i> Filtros de Búsqueda</h5>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="toggleFiltros" checked>
+                <label class="form-check-label" for="toggleFiltros" style="color: white;">Mostrar</label>
+            </div>
+        </div>
+        <div class="card-body" id="filtrosContent">
+            <form method="get" action="@Url.Action("VistaMatriz")" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">ID Propiedad</label>
+                    <input type="text" name="propiedad" class="form-control" value="@ViewBag.PropiedadSeleccionada" placeholder="Buscar por ID">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Comuna</label>
+                    <input type="text" name="comuna" class="form-control" value="@ViewBag.ComunaSeleccionada" placeholder="Buscar por comuna">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Región</label>
+                    <input type="text" name="region" class="form-control" value="@ViewBag.RegionSeleccionada" placeholder="Buscar por región">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resumen de Portales -->
+    @if (resumenPortales.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-chart-bar"></i> Estadísticas por Portal</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="toggleEstadisticas" checked>
+                    <label class="form-check-label" for="toggleEstadisticas" style="color: white;">Mostrar</label>
+                </div>
+            </div>
+            <div class="card-body" id="estadisticasContent">
+                <div class="row">
+                    @foreach (var portal in resumenPortales)
+                    {
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <h5>@portal.NombrePortal</h5>
+                                <div class="stat-number">@portal.TotalClics</div>
+                                <p class="mb-0">@portal.PropiedadesActivas propiedades</p>
+                                <small>Promedio: @portal.PromedioClics.ToString("F1") clics</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Tabla de Datos -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-table"></i> Propiedades (@matrizData.Count)</h5>
+        </div>
+        <div class="card-body">
+            @if (matrizData.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover" id="tablaMatriz">
+                        <thead>
+                            <tr>
+                                <th>ID Propiedad</th>
+                                <th>Título</th>
+                                <th>Región</th>
+                                <th style="text-align: center;">Portal Inmob.</th>
+                                <th style="text-align: center;">Proppit</th>
+                                <th style="text-align: center;">Chile Prop.</th>
+                                <th style="text-align: center;">TocToc</th>
+                                <th style="text-align: center;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in matrizData)
+                            {
+                    <tr>
+                        <td><strong>@item.ID_Propiedad</strong></td>
+                        <td>@item.Titulo</td>
+                        <td>@item.Region</td>
+                                    <td style="text-align: center;">
+                                        @if (item.ClicsPorPortal.ContainsKey("PortalInmobiliario") && item.ClicsPorPortal["PortalInmobiliario"] > 0)
+                                        {
+                                            <span class="badge bg-info">@item.ClicsPorPortal["PortalInmobiliario"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                    <td style="text-align: center;">
+                                        @if (item.ClicsPorPortal.ContainsKey("Proppit") && item.ClicsPorPortal["Proppit"] > 0)
+                                        {
+                                            <span class="badge bg-warning">@item.ClicsPorPortal["Proppit"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                    <td style="text-align: center;">
+                                        @if (item.ClicsPorPortal.ContainsKey("ChilePropiedades") && item.ClicsPorPortal["ChilePropiedades"] > 0)
+                                        {
+                                            <span class="badge bg-primary">@item.ClicsPorPortal["ChilePropiedades"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                    <td style="text-align: center;">
+                                        @if (item.ClicsPorPortal.ContainsKey("TocToc") && item.ClicsPorPortal["TocToc"] > 0)
+                                        {
+                                            <span class="badge bg-danger">@item.ClicsPorPortal["TocToc"]</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="badge bg-success">@item.TotalClics</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No se encontraron propiedades con los filtros aplicados.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="~/js/sincronizacionportales.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#tablaMatriz').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
+            },
+            pageLength: 25,
+            order: [[7, 'desc']] // Ordenar por Total Clics
+        });
+
+        // Toggle para Filtros
+        $('#toggleFiltros').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#filtrosContent').slideDown();
+            } else {
+                $('#filtrosContent').slideUp();
+            }
+        });
+
+        // Toggle para Estadísticas
+        $('#toggleEstadisticas').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#estadisticasContent').slideDown();
+            } else {
+                $('#estadisticasContent').slideUp();
+            }
+        });
+    });
+</script>

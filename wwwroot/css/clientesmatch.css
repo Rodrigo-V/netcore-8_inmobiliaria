@@ -1,0 +1,360 @@
+/* ============================================
+   CSS para Clientes Match
+   ============================================ */
+
+/* Secciones del formulario */
+.form-section {
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #ff9800;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.section-title {
+    color: #ff9800;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #404040;
+}
+
+/* Estilos para labels */
+.form-label {
+    font-weight: 500;
+    color: #e0e0e0;
+    margin-bottom: 0.5rem;
+}
+
+.form-label .text-danger {
+    font-weight: 700;
+}
+
+/* Estilos para inputs y selects */
+.form-control, .form-select {
+    background-color: #2a2a2a;
+    border: 1px solid #444444;
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 0.575rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #333333;
+    border-color: #ff9800;
+    color: #ffffff;
+    box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
+}
+
+.form-control:disabled {
+    background-color: #1e1e1e;
+    color: #888888;
+    cursor: not-allowed;
+}
+
+.form-control::placeholder {
+    color: #888888;
+}
+
+.form-select option {
+    background-color: #2a2a2a;
+    color: #ffffff;
+}
+
+/* Textarea */
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Validación */
+.was-validated .form-control:invalid,
+.was-validated .form-select:invalid {
+    border-color: #dc3545;
+}
+
+.was-validated .form-control:valid,
+.was-validated .form-select:valid {
+    border-color: #198754;
+}
+
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-select:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #2a2a2a !important;
+    color: white !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 15px 20px;
+    border-bottom: 1px solid #333333 !important;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Tabla */
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#tablaClientesMatch {
+    margin-bottom: 0;
+    background-color: #1e1e1e;
+}
+
+#tablaClientesMatch thead th {
+    background-color: #2a2a2a !important;
+    color: white !important;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #404040 !important;
+    padding: 12px 8px;
+}
+
+#tablaClientesMatch tbody td {
+    vertical-align: middle;
+    padding: 10px 8px;
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+}
+
+#tablaClientesMatch tbody tr {
+    background-color: #1e1e1e !important;
+}
+
+#tablaClientesMatch tbody tr:nth-child(even) {
+    background-color: #252525 !important;
+}
+
+#tablaClientesMatch tbody tr:hover {
+    background-color: #333333 !important;
+    cursor: pointer;
+}
+
+/* DataTables controles oscuros */
+.dataTables_wrapper {
+    color: #ffffff;
+}
+
+.dataTables_length select,
+.dataTables_filter input {
+    background-color: #2a2a2a;
+    border: 1px solid #444444;
+    color: #ffffff;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.dataTables_info {
+    color: #b0b0b0 !important;
+}
+
+.dataTables_paginate .paginate_button {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    border: 1px solid #444444 !important;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border: 1px solid #666666 !important;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background-color: #ff9800 !important;
+    color: #ffffff !important;
+    border: 1px solid #ff9800 !important;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    color: #666666 !important;
+}
+
+/* Botones de acción */
+.btn-action {
+    padding: 5px 10px;
+    margin: 0 2px;
+    border-radius: 5px;
+    font-size: 0.875rem;
+}
+
+.btn-action i {
+    margin-right: 3px;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    border-radius: 10px 10px 0 0;
+    border-bottom: none;
+    padding: 20px;
+}
+
+.modal-header .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+}
+
+.modal-body {
+    padding: 25px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 15px 25px;
+}
+
+/* Scrollbar personalizado para modal */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Badges para tipo de match */
+.badge-tipo-match {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.badge-lead-convertido {
+    background-color: #28a745 !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    display: inline-block !important;
+}
+
+.badge-cliente-directo {
+    background-color: #007bff !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    display: inline-block !important;
+}
+
+.badge-referido {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+    padding: 6px 12px !important;
+    display: inline-block !important;
+}
+
+.badge-contacto-web {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    display: inline-block !important;
+}
+
+.badge-otro {
+    background-color: #6c757d !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    display: inline-block !important;
+}
+
+/* Badge general de Bootstrap oscuro */
+.badge {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .form-section {
+        padding: 10px;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Loading spinner */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+

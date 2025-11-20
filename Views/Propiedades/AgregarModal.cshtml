@@ -1,0 +1,155 @@
+@model Inmobiliaria.Net8.DTOs.Propiedad
+
+<div class="container-fluid modal-dark-content" style="padding: 16px;">
+    
+    <!-- Tarjeta de Información Básica -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-info-circle"></i>
+            <span>Información Básica</span>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtNuevoTitulo" style="font-weight:600; color: white;">Título *</label>
+                    <input type="text" class="form-control modal-input" id="txtNuevoTitulo" placeholder="Título de la propiedad" required />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selNuevoTipoPropiedad" style="font-weight:600; color: white;">Tipo de Propiedad *</label>
+                    <select class="form-control modal-input" id="selNuevoTipoPropiedad" required>
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Ubicación -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Ubicación</span>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtNuevoDireccion" style="font-weight:600; color: white;">Dirección</label>
+                    <input type="text" class="form-control modal-input" id="txtNuevoDireccion" placeholder="Dirección" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selNuevoRegion" style="font-weight:600; color: white;">Región *</label>
+                    <select class="form-control modal-input" id="selNuevoRegion" required>
+                        <option value="">Seleccione región...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selNuevoComuna" style="font-weight:600; color: white;">Comuna</label>
+                    <select class="form-control modal-input" id="selNuevoComuna" disabled>
+                        <option value="">Seleccione región primero...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Características -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-home"></i>
+            <span>Características</span>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtNuevoPrecio" style="font-weight:600; color: white;">Precio</label>
+                    <input type="text" class="form-control modal-input" id="txtNuevoPrecio" placeholder="Ej: 150000000" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selNuevoDormitorios" style="font-weight:600; color: white;">Dormitorios</label>
+                    <select class="form-control modal-input" id="selNuevoDormitorios">
+                        <option value="">Seleccione...</option>
+                        <option value="0">0 (Sin dormitorios)</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6+</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selNuevoBanos" style="font-weight:600; color: white;">Baños</label>
+                    <select class="form-control modal-input" id="selNuevoBanos">
+                        <option value="">Seleccione...</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5+</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selNuevoEstado" style="font-weight:600; color: white;">Estado *</label>
+                    <select class="form-control modal-input" id="selNuevoEstado" required>
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Medidas -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-ruler-combined"></i>
+            <span>Medidas</span>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtNuevoMetrosConstruidos" style="font-weight:600; color: white;">Metros Construidos (m²)</label>
+                    <input type="text" class="form-control modal-input" id="txtNuevoMetrosConstruidos" placeholder="Ej: 120" />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="txtNuevoMetrosTerreno" style="font-weight:600; color: white;">Metros Terreno (m²)</label>
+                    <input type="text" class="form-control modal-input" id="txtNuevoMetrosTerreno" placeholder="Ej: 200" />
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta de Gestión -->
+    <div class="card-edit-propiedad">
+        <div class="card-title">
+            <i class="fas fa-user-tie"></i>
+            <span>Gestión</span>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label for="selNuevoAgenteResponsable" style="font-weight:600; color: white;">Agente Responsable</label>
+                    <select class="form-control modal-input" id="selNuevoAgenteResponsable">
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

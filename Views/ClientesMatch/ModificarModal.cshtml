@@ -1,0 +1,156 @@
+@model Inmobiliaria.Net8.DTOs.ClienteMatch
+
+<!-- CSS externo - referencia a clientesmatch.css -->
+
+<!-- Modal Modificar Cliente Match -->
+<div class="modal fade" id="modificarModal" tabindex="-1" aria-labelledby="modificarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #1a1a1a; color: #ffffff; border: 1px solid #404040;">
+            <div class="modal-header" style="background-color: #ff9800; color: white; border-bottom: 1px solid #404040;">
+                <h5 class="modal-title" id="modificarModalLabel">
+                    <i class="fas fa-edit"></i> Modificar Cliente Match
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="background-color: #1a1a1a; color: #ffffff; max-height: 70vh; overflow-y: auto;">
+                <form id="formModificar">
+                    <!-- ID Hidden -->
+                    <input type="hidden" id="modificar_ID_Interno" name="ID_Interno">
+
+                    <!-- Información Básica -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-info-circle"></i> Información Básica
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modificar_ID_Display" class="form-label">ID Cliente</label>
+                                <input type="text" class="form-control" id="modificar_ID_Display" disabled>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="modificar_Tipo_Match" class="form-label">
+                                    Tipo Match <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="modificar_Tipo_Match" name="Tipo_Match" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="Lead Convertido">Lead Convertido</option>
+                                    <option value="Cliente Directo">Cliente Directo</option>
+                                    <option value="Referido">Referido</option>
+                                    <option value="Contacto Web">Contacto Web</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione el tipo de match</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="modificar_Nombre" class="form-label">
+                                    Nombre Completo <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="modificar_Nombre" name="Nombre" required>
+                                <div class="invalid-feedback">Por favor ingrese el nombre</div>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="modificar_Rut" class="form-label">RUT</label>
+                                <input type="text" class="form-control" id="modificar_Rut" name="Rut" placeholder="12.345.678-9">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Contacto -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-phone"></i> Información de Contacto
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modificar_Telefono" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="modificar_Telefono" name="Telefono" placeholder="+56912345678">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="modificar_Correo" class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="modificar_Correo" name="Correo" placeholder="cliente@example.com">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="modificar_Direccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="modificar_Direccion" name="Direccion">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="modificar_Comuna" class="form-label">Comuna</label>
+                                <input type="text" class="form-control" id="modificar_Comuna" name="Comuna">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información Personal y Profesional -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-user"></i> Información Personal y Profesional
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modificar_Estado_Civil" class="form-label">Estado Civil</label>
+                                <select class="form-select" id="modificar_Estado_Civil" name="Estado_Civil">
+                                    <option value="">Seleccione...</option>
+                                    <option value="Soltero/a">Soltero/a</option>
+                                    <option value="Casado/a">Casado/a</option>
+                                    <option value="Divorciado/a">Divorciado/a</option>
+                                    <option value="Viudo/a">Viudo/a</option>
+                                    <option value="Conviviente">Conviviente</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="modificar_Profesion" class="form-label">Profesión</label>
+                                <input type="text" class="form-control" id="modificar_Profesion" name="Profesion">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="modificar_Giro_Razon_Social" class="form-label">Giro / Razón Social</label>
+                                <input type="text" class="form-control" id="modificar_Giro_Razon_Social" name="Giro_Razon_Social">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos Adicionales -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-file-alt"></i> Datos Adicionales
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="modificar_Datos_adjuntos" class="form-label">Observaciones / Notas</label>
+                                <textarea class="form-control" id="modificar_Datos_adjuntos" name="Datos_adjuntos" rows="4" placeholder="Ingrese observaciones o notas adicionales..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="background-color: #2a2a2a; border-top: 1px solid #404040;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: #404040; border-color: #404040;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-warning" id="btnGuardarModificar">
+                    <i class="fas fa-save"></i> Actualizar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript externo - referencia a clientesmatch.js -->
+

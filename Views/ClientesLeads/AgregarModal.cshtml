@@ -1,0 +1,314 @@
+@model Inmobiliaria.Net8.DTOs.ClienteLead
+
+@* Los estilos CSS están en wwwroot/css/clientesleads.css *@
+
+<div class="lead-form-dark" id="formAgregarLead">
+    
+    <!-- Sección: Información Personal -->
+    <div class="form-section">
+        <h5 class="form-section-title">
+            <i class="fas fa-user me-3"></i>Información Personal
+        </h5>
+        
+        <!-- Nombres y Apellidos -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="nombres" class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Nombres *
+                </label>
+                <input type="text" class="form-control" id="nombres" name="Nombres" 
+                       placeholder="Nombres del cliente" required>
+                <div class="invalid-feedback">
+                    Por favor ingrese los nombres del cliente.
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="apellidos" class="form-label">
+                    <i class="fas fa-user-tag me-2"></i>Apellidos *
+                </label>
+                <input type="text" class="form-control" id="apellidos" name="Apellidos" 
+                       placeholder="Apellidos del cliente" required>
+                <div class="invalid-feedback">
+                    Por favor ingrese los apellidos del cliente.
+                </div>
+            </div>
+        </div>
+
+        <!-- Sexo y Fecha de Contacto -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="sexo" class="form-label">
+                    <i class="fas fa-venus-mars me-2"></i>Sexo
+                </label>
+                <select class="form-select" id="sexo" name="Sexo">
+                    <option value="">Seleccionar</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                    <option value="O">Otro</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="fechaContacto" class="form-label">
+                    <i class="fas fa-calendar-alt me-2"></i>Fecha de Contacto
+                </label>
+                <input type="date" class="form-control" id="fechaContacto" name="Fecha_Contacto">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-separator"></div>
+
+    <!-- Sección: Información de Contacto -->
+    <div class="form-section">
+        <h5 class="form-section-title">
+            <i class="fas fa-address-book me-3"></i>Información de Contacto
+        </h5>
+        
+        <!-- Correo y Teléfono -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="correo" class="form-label">
+                    <i class="fas fa-envelope me-2"></i>Correo Electrónico *
+                </label>
+                <input type="email" class="form-control" id="correo" name="Correo_Electronico" 
+                       placeholder="correo@ejemplo.com" required>
+                <div class="invalid-feedback">
+                    Por favor ingrese un correo electrónico válido.
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="telefono" class="form-label">
+                    <i class="fas fa-phone me-2"></i>Teléfono
+                </label>
+                <input type="tel" class="form-control" id="telefono" name="Telefono" 
+                       placeholder="+56 9 1234 5678">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-separator"></div>
+
+    <!-- Sección: Información de Origen -->
+    <div class="form-section">
+        <h5 class="form-section-title">
+            <i class="fas fa-globe me-3"></i>Información de Origen
+        </h5>
+        
+        <!-- Portal y Asistente -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="portal" class="form-label">
+                    <i class="fas fa-external-link-alt me-2"></i>Portal
+                </label>
+                <select class="form-select" id="portal" name="Portal">
+                    <option value="">Seleccionar portal</option>
+                    <!-- Se llenarán dinámicamente -->
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="asistente" class="form-label">
+                    <i class="fas fa-user-tie me-2"></i>Asistente
+                </label>
+                <select class="form-select" id="asistente" name="Asistente">
+                    <option value="">Seleccionar asistente</option>
+                    <!-- Se llenarán dinámicamente -->
+                </select>
+            </div>
+        </div>
+
+        <!-- Propiedad Consultada -->
+        <div class="mb-3">
+            <label for="ddlPropiedad" class="form-label">
+                <i class="fas fa-home me-2"></i>Propiedad Consultada
+            </label>
+            <select class="form-select" name="ID_Unidad_Consultada" id="ddlPropiedad">
+                <option value="">Seleccionar propiedad</option>
+                <!-- Se llenarán dinámicamente -->
+            </select>
+            <input type="hidden" name="Unidad_Consultada" id="hdnUnidadConsultada" />
+        </div>
+
+        <!-- Previsualización de Imagen de la Propiedad -->
+        <div class="mb-3">
+            <label class="form-label">
+                <i class="fas fa-image me-2"></i>Vista Previa de la Propiedad
+            </label>
+            <div class="propiedad-imagen-container-agregar" id="propiedadImagenContainerAgregar">
+                <div class="no-image-content-agregar" style="display: flex; flex-direction: column; align-items: center;">
+                    <i class="fas fa-image" style="font-size: 48px; color: #555; margin-bottom: 10px;"></i>
+                    <p style="color: #888; margin: 0; font-size: 14px;">No hay imagen disponible</p>
+                    <small style="color: #888; font-size: 11px; margin-top: 5px;">
+                        Seleccione una propiedad para ver la imagen
+                    </small>
+                </div>
+            </div>
+            <small style="color: #888; font-size: 11px; font-style: italic; display: block; margin-top: 8px;">
+                <i class="fas fa-info-circle"></i> Las imágenes se cargan automáticamente desde Google Drive
+            </small>
+        </div>
+    </div>
+
+    <div class="form-separator"></div>
+
+    <!-- Sección: Seguimiento y Observaciones -->
+    <div class="form-section">
+        <h5 class="form-section-title">
+            <i class="fas fa-comment-dots me-3"></i>Seguimiento y Observaciones
+        </h5>
+        
+        <!-- Seguimiento -->
+        <div class="mb-3">
+            <label for="seguimiento" class="form-label">
+                <i class="fas fa-tasks me-2"></i>Seguimiento
+            </label>
+            <textarea class="form-control textarea-resize" id="seguimiento" name="Seguimiento" 
+                      rows="3" placeholder="Notas de seguimiento del lead..."></textarea>
+        </div>
+
+        <!-- Respuesta -->
+        <div class="mb-3">
+            <label for="respuesta" class="form-label">
+                <i class="fas fa-reply me-2"></i>Respuesta del Cliente
+            </label>
+            <textarea class="form-control textarea-resize" id="respuesta" name="Respuesta" 
+                      rows="3" placeholder="Respuesta o comentarios del cliente..."></textarea>
+        </div>
+    </div>
+
+</div>
+
+@* El JavaScript está en wwwroot/js/clientesleads.js *@
+<script>
+$(document).ready(function() {
+    console.log('🔧 Inicializando modal de agregar lead');
+    
+    // Cargar datos de los combos
+    cargarDatosAgregar();
+    
+    // Actualizar campo oculto con el texto seleccionado cuando cambie el dropdown
+    $('#ddlPropiedad').on('change', function() {
+        var selectedOption = $(this).find('option:selected');
+        var selectedText = selectedOption.text();
+        var idPropiedad = $(this).val();
+        $('#hdnUnidadConsultada').val(selectedText);
+        
+        // Remover estado de validación cuando se selecciona una opción
+        $(this).removeClass('is-invalid is-valid');
+        
+        // Cargar imagen de la propiedad seleccionada
+        if (idPropiedad && idPropiedad !== '') {
+            actualizarImagenPropiedadAgregar(idPropiedad);
+        } else {
+            // Si no hay propiedad seleccionada, mostrar mensaje por defecto
+            $('#propiedadImagenContainerAgregar').html(`
+                <div class="no-image-content-agregar" style="display: flex; flex-direction: column; align-items: center;">
+                    <i class="fas fa-image" style="font-size: 48px; color: #555; margin-bottom: 10px;"></i>
+                    <p style="color: #888; margin: 0; font-size: 14px;">No hay imagen disponible</p>
+                    <small style="color: #888; font-size: 11px; margin-top: 5px;">
+                        Seleccione una propiedad para ver la imagen
+                    </small>
+                </div>
+            `);
+        }
+    });
+
+    // Validación Bootstrap para el formulario
+    function initializeBootstrapValidation() {
+        // Validación de campos requeridos en tiempo real
+        $('#nombres, #apellidos, #correo').on('input blur', function() {
+            validateField($(this));
+        });
+
+        // Validación básica de email (solo requerido)
+        $('#correo').on('input blur', function() {
+            var email = $(this).val();
+            
+            if (email && email.length > 0) {
+                $(this).addClass('is-valid').removeClass('is-invalid');
+            } else {
+                $(this).removeClass('is-valid is-invalid');
+            }
+        });
+
+        // Validación básica de teléfono (solo longitud)
+        $('#telefono').on('input', function() {
+            var phone = $(this).val();
+            
+            if (phone && phone.length >= 8) {
+                $(this).addClass('is-valid').removeClass('is-invalid');
+            } else if (phone && phone.length > 0 && phone.length < 8) {
+                $(this).addClass('is-invalid').removeClass('is-valid');
+            } else {
+                $(this).removeClass('is-valid is-invalid');
+            }
+        });
+        
+        // Animación suave al enfocar campos
+        $('.form-control, .form-select').on('focus', function() {
+            $(this).closest('.form-section').addClass('section-active');
+        });
+        
+        $('.form-control, .form-select').on('blur', function() {
+            $(this).closest('.form-section').removeClass('section-active');
+        });
+    }
+
+    // Función para validar campos individuales
+    function validateField($field) {
+        var value = $field.val().trim();
+        var isRequired = $field.prop('required');
+        
+        if (isRequired && !value) {
+            $field.addClass('is-invalid').removeClass('is-valid');
+            return false;
+        } else if (value) {
+            $field.addClass('is-valid').removeClass('is-invalid');
+            return true;
+        } else {
+            $field.removeClass('is-valid is-invalid');
+            return true;
+        }
+    }
+
+    // Función global para validar todo el formulario (usada por el botón guardar)
+    window.validateLeadForm = function() {
+        var isValid = true;
+        var requiredFields = $('#formAgregarLead').find('[required]');
+        
+        requiredFields.each(function() {
+            if (!validateField($(this))) {
+                isValid = false;
+            }
+        });
+        
+        // Validar email con formato
+        var email = $('#correo').val().trim();
+        if (email) {
+            var emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (!emailRegex.test(email)) {
+                $('#correo').addClass('is-invalid').removeClass('is-valid');
+                isValid = false;
+            }
+        }
+        
+        // Scroll al primer campo inválido si existe
+        if (!isValid) {
+            var firstInvalid = $('#formAgregarLead').find('.is-invalid').first();
+            if (firstInvalid.length) {
+                firstInvalid[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function() {
+                    firstInvalid.focus();
+                }, 300);
+            }
+        }
+        
+        return isValid;
+    };
+    
+    // Inicializar validación
+    initializeBootstrapValidation();
+    
+    console.log('✅ Modal de agregar lead inicializado correctamente');
+});
+</script>
+

@@ -1,0 +1,229 @@
+@model Inmobiliaria.Net8.DTOs.Usuario
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<link rel="stylesheet" href="~/css/gestionusuarios.css" />
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">
+                                <i class="fas fa-user-edit"></i>
+                                Editar Usuario: @Model.NombreCompleto
+                            </h4>
+                            <small>Modificar información del usuario</small>
+                        </div>
+                        <a href="@Url.Action("Index")" class="btn btn-dark">
+                            <i class="fas fa-arrow-left"></i>
+                            Volver a la Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Error:</strong> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Formulario -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit"></i>
+                        Información del Usuario
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="Editar" asp-route-id="@Model.ID_Usuario" id="formEditarUsuario">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="row">
+                            <!-- Información Personal -->
+                            <div class="col-md-6">
+                                <h6 class="text-warning mb-3">
+                                    <i class="fas fa-user"></i>
+                                    Información Personal
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <label for="nombres" class="form-label">Nombres <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="nombres" name="nombres" required maxlength="100" value="@Model.Nombres">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="apellidos" class="form-label">Apellidos <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="apellidos" name="apellidos" required maxlength="100" value="@Model.Apellidos">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="correoElectronico" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="correoElectronico" name="correoElectronico" required maxlength="255" value="@Model.Correo_Electronico">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="rol" class="form-label">Rol <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="rol" name="rol" required>
+                                        <option value="">Seleccione un rol</option>
+                                        @if (ViewBag.Roles != null)
+                                        {
+                                            @foreach (var rol in ViewBag.Roles)
+                                            {
+                                                <option value="@rol" selected="@(Model.Rol == rol)">@rol</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="activo" name="activo" checked="@Model.Activo">
+                                        <label class="form-check-label" for="activo">
+                                            <strong>Usuario Activo</strong>
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">Los usuarios inactivos no pueden acceder al sistema</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Cambio de Contraseña -->
+                            <div class="col-md-6">
+                                <h6 class="text-warning mb-3">
+                                    <i class="fas fa-lock"></i>
+                                    Cambiar Contraseña (Opcional)
+                                </h6>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="cambiarClave" name="cambiarClave" value="true">
+                                        <label class="form-check-label" for="cambiarClave">
+                                            Cambiar contraseña del usuario
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div id="contenedorCambioClave" style="display: none;">
+                                    <div class="mb-3">
+                                        <label for="nuevaClave" class="form-label">Nueva Clave</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="nuevaClave" name="nuevaClave" minlength="6" placeholder="Mínimo 6 caracteres">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('nuevaClave')">
+                                                <i class="fas fa-eye" id="iconNuevaClave"></i>
+                                            </button>
+                                        </div>
+                                        <small class="form-text text-muted">Mínimo 6 caracteres</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirmarClave" class="form-label">Confirmar Nueva Clave</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="confirmarClave" name="confirmarClave" minlength="6" placeholder="Repita la clave">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmarClave')">
+                                                <i class="fas fa-eye" id="iconConfirmarClave"></i>
+                                            </button>
+                                        </div>
+                                        <small class="form-text text-muted">Debe coincidir con la clave anterior</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Información del Usuario -->
+                                <div class="card bg-light mt-4">
+                                    <div class="card-body">
+                                        <h6 class="text-info mb-2">
+                                            <i class="fas fa-info-circle"></i>
+                                            Información del Sistema
+                                        </h6>
+                                        <p class="small mb-1"><strong>ID Usuario:</strong> @Model.ID_Usuario</p>
+                                        <p class="small mb-1"><strong>Fecha de Creación:</strong> @Model.Fecha_Creacion.ToString("dd/MM/yyyy HH:mm")</p>
+                                        <p class="small mb-0">
+                                            <strong>Último Acceso:</strong> 
+                                            @if (Model.Ultimo_Acceso.HasValue)
+                                            {
+                                                @Model.Ultimo_Acceso.Value.ToString("dd/MM/yyyy HH:mm")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Nunca ha accedido</span>
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="fas fa-save"></i>
+                                    Guardar Cambios
+                                </button>
+                                <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg ms-2">
+                                    <i class="fas fa-times"></i>
+                                    Cancelar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/gestionusuarios.js"></script>
+<script>
+// Mostrar/Ocultar campos de cambio de clave
+document.getElementById('cambiarClave').addEventListener('change', function() {
+    const contenedor = document.getElementById('contenedorCambioClave');
+    const nuevaClave = document.getElementById('nuevaClave');
+    const confirmarClave = document.getElementById('confirmarClave');
+    
+    if (this.checked) {
+        contenedor.style.display = 'block';
+        nuevaClave.required = true;
+        confirmarClave.required = true;
+    } else {
+        contenedor.style.display = 'none';
+        nuevaClave.required = false;
+        confirmarClave.required = false;
+        nuevaClave.value = '';
+        confirmarClave.value = '';
+    }
+});
+
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById('icon' + fieldId.charAt(0).toUpperCase() + fieldId.slice(1));
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+
