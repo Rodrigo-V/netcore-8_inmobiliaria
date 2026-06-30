@@ -1,0 +1,762 @@
+@model List<Inmobiliaria.Net8.DTOs.APIConfiguracion>
+@{
+    ViewData["Title"] = "Pruebas de APIs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plug"></i>
+                        Pruebas de APIs
+                    </h4>
+                    <small>Configuración y pruebas de múltiples APIs</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Éxito:</strong> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Error:</strong> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Panel de Estadísticas -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar"></i>
+                        Estadísticas Generales
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="estadisticasContenido">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2">Cargando estadísticas...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de Configuraciones de API -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs"></i>
+                        Configuraciones de API
+                    </h5>
+                    <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevaAPI" data-new="true">
+                        <i class="fas fa-plus"></i> Nueva API
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>URL</th>
+                                        <th>Estado</th>
+                                        <th>Última Prueba</th>
+                                        <th>Última Sincronización</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var api in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@api.Nombre</strong>
+                                                @if (!string.IsNullOrEmpty(api.Descripcion))
+                                                {
+                                                    <br><small class="text-muted">@api.Descripcion</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info text-dark">@api.TipoAPI</span>
+                                            </td>
+                                            <td>
+                                                <code class="small">@api.EndpointUrl</code>
+                                            </td>
+                                            <td>
+                                                @if (api.Activo)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="ultima-prueba" data-api-id="@api.Id">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="ultima-sync" data-api-id="@api.Id">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-info btn-sm" onclick="probarConexion(@api.Id)" title="Probar Conexión">
+                                                        <i class="fas fa-plug"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="sincronizarAPI(@api.Id)" title="Sincronizar">
+                                                        <i class="fas fa-sync-alt"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-warning btn-sm" onclick="editarAPI(@api.Id)" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAPI(@api.Id)" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                            <h5>No hay configuraciones de API</h5>
+                            <p class="text-muted">Haz clic en "Nueva API" para agregar la primera configuración.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados de Pruebas -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list"></i>
+                        Resultados de Pruebas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="resultadosPrueba" style="display: none;">
+                        <div id="resultadoContenido"></div>
+                    </div>
+                    <div id="sinResultados" class="text-center py-3">
+                        <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">Los resultados de las pruebas aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva/Editar API -->
+<div class="modal fade" id="modalNuevaAPI" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Nueva Configuración de API</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formAPI" method="post" action="@Url.Action("GuardarConfiguracion")">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" id="apiId" name="Id" value="0">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="nombre" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="nombre" name="Nombre" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="tipoAPI" class="form-label">Tipo de API *</label>
+                                <select class="form-control" id="tipoAPI" name="TipoAPI" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="TocToc">Toc Toc</option>
+                                    <option value="PortalInmobiliario">Portal Inmobiliario</option>
+                                    <option value="ChilePropiedades">Chile Propiedades</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="url" class="form-label">URL Principal *</label>
+                                <input type="url" class="form-control" id="url" name="Url" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="endpointUrl" class="form-label">Endpoint URL *</label>
+                                <input type="url" class="form-control" id="endpointUrl" name="EndpointUrl" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="apiKey" class="form-label">API Key</label>
+                                <input type="text" class="form-control" id="apiKey" name="ApiKey">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="apiSecret" class="form-label">API Secret</label>
+                                <input type="password" class="form-control" id="apiSecret" name="ApiSecret">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="Descripcion" rows="2"></textarea>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="activo" name="Activo" checked>
+                            <label class="form-check-label" for="activo">Activo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* Estilos para el modal con tema oscuro */
+        .modal-content {
+            background-color: #272727 !important;
+            border: 1px solid #404040 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .modal-header {
+            background-color: #404040 !important;
+            border-bottom: 1px solid #555 !important;
+            color: #ffffff !important;
+        }
+        
+        .modal-body {
+            background-color: #272727 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .modal-footer {
+            background-color: #404040 !important;
+            border-top: 1px solid #555 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .modal-title {
+            color: #ffffff !important;
+        }
+        
+        .modal .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+        
+        .modal .form-control {
+            background-color: #404040 !important;
+            border-color: #555 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .modal .form-control:focus {
+            background-color: #505050 !important;
+            border-color: #007bff !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+        }
+        
+        .modal .form-control::placeholder {
+            color: #999 !important;
+        }
+        
+        .modal .form-label {
+            color: #e0e0e0 !important;
+            font-weight: 600 !important;
+        }
+        
+        .modal .form-check-label {
+            color: #e0e0e0 !important;
+        }
+        
+        .modal .btn {
+            font-weight: 600 !important;
+        }
+        
+        .modal .btn-primary {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+        }
+        
+        .modal .btn-primary:hover {
+            background-color: #0056b3 !important;
+            border-color: #0056b3 !important;
+        }
+        
+        .modal .btn-secondary {
+            background-color: #6c757d !important;
+            border-color: #6c757d !important;
+        }
+        
+        .modal .btn-secondary:hover {
+            background-color: #545b62 !important;
+            border-color: #545b62 !important;
+        }
+        
+        /* Estilos para el select */
+        .modal .form-control option {
+            background-color: #404040 !important;
+            color: #e0e0e0 !important;
+        }
+        
+        /* Estilos para el textarea */
+        .modal textarea.form-control {
+            background-color: #404040 !important;
+            border-color: #555 !important;
+            color: #e0e0e0 !important;
+        }
+    </style>
+    
+    <script>
+        $(document).ready(function () {
+            cargarEstadisticas();
+            cargarUltimasPruebas();
+        });
+
+        function cargarEstadisticas() {
+            $.ajax({
+                url: '@Url.Action("ObtenerEstadisticas")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.Error) {
+                        $('#estadisticasContenido').html(`
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Error al cargar estadísticas:</strong> ${response.Error}
+                            </div>
+                        `);
+                    } else {
+                        var html = '<div class="row text-center">';
+                        
+                        response.forEach(function(stat) {
+                            var badgeClass = stat.activo ? 'bg-success' : 'bg-secondary';
+                            var iconClass = stat.activo ? 'fa-check' : 'fa-times';
+                            
+                            html += `
+                                <div class="col-md-3 mb-3">
+                                    <div class="card ${badgeClass} text-white">
+                                        <div class="card-body">
+                                            <h6 class="card-title">${stat.nombre}</h6>
+                                            <p class="card-text">
+                                                <small>${stat.tipoAPI}</small><br>
+                                                <i class="fas ${iconClass}"></i> ${stat.activo ? 'Activo' : 'Inactivo'}
+                                            </p>
+                                            <div class="row text-center">
+                                                <div class="col-6">
+                                                    <small>Pruebas: ${stat.pruebasExitosas}/${stat.totalPruebas}</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small>Sync: ${stat.sincronizacionesExitosas}/${stat.totalSincronizaciones}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                        $('#estadisticasContenido').html(html);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#estadisticasContenido').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Error al cargar estadísticas:</strong> ${error}
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        function cargarUltimasPruebas() {
+            $('.ultima-prueba, .ultima-sync').each(function() {
+                var apiId = $(this).data('api-id');
+                var tipo = $(this).hasClass('ultima-prueba') ? 'prueba' : 'sync';
+                
+                // Cargar fechas desde el servidor
+                $.ajax({
+                    url: '@Url.Action("ObtenerFechasAPI")',
+                    type: 'GET',
+                    data: { apiId: apiId },
+                    success: function(response) {
+                        if (tipo === 'prueba') {
+                            var color = response.ultimaPruebaExitoso ? 'text-success' : 'text-danger';
+                            var icon = response.ultimaPruebaExitoso ? 'fa-check-circle' : 'fa-times-circle';
+                            $('.ultima-prueba[data-api-id="' + apiId + '"]').html(
+                                '<i class="fas ' + icon + ' ' + color + '"></i> ' + response.ultimaPrueba
+                            );
+                        } else {
+                            var color = response.ultimaSincronizacionExitoso ? 'text-success' : 'text-danger';
+                            var icon = response.ultimaSincronizacionExitoso ? 'fa-check-circle' : 'fa-times-circle';
+                            $('.ultima-sync[data-api-id="' + apiId + '"]').html(
+                                '<i class="fas ' + icon + ' ' + color + '"></i> ' + response.ultimaSincronizacion
+                            );
+                        }
+                    },
+                    error: function() {
+                        if (tipo === 'prueba') {
+                            $('.ultima-prueba[data-api-id="' + apiId + '"]').html('<small class="text-muted">Error</small>');
+                        } else {
+                            $('.ultima-sync[data-api-id="' + apiId + '"]').html('<small class="text-muted">Error</small>');
+                        }
+                    }
+                });
+            });
+        }
+
+        function probarConexion(apiId) {
+            $('#resultadosPrueba').hide();
+            $('#sinResultados').hide();
+            $('#resultadoContenido').html(`
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Probando...</span>
+                    </div>
+                    <p class="mt-2">Probando conexión...</p>
+                </div>
+            `);
+            $('#resultadosPrueba').show();
+
+            $.ajax({
+                url: '@Url.Action("ProbarConexion")',
+                type: 'POST',
+                data: {
+                    apiId: apiId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    mostrarResultadoPrueba(response);
+                },
+                error: function (xhr, status, error) {
+                    $('#resultadoContenido').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Error en la petición:</strong> ${error}
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        function sincronizarAPI(apiId) {
+            if (!confirm('¿Está seguro de que desea sincronizar esta API? Esto puede tomar varios minutos.')) {
+                return;
+            }
+
+            $('#resultadosPrueba').hide();
+            $('#sinResultados').hide();
+            $('#resultadoContenido').html(`
+                <div class="text-center">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Sincronizando...</span>
+                    </div>
+                    <p class="mt-2">Sincronizando datos...</p>
+                </div>
+            `);
+            $('#resultadosPrueba').show();
+
+            $.ajax({
+                url: '@Url.Action("SincronizarAPI")',
+                type: 'POST',
+                data: {
+                    apiId: apiId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    mostrarResultadoSincronizacion(response);
+                },
+                error: function (xhr, status, error) {
+                    $('#resultadoContenido').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Error en la sincronización:</strong> ${error}
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        function mostrarResultadoPrueba(resultado) {
+            var html = '';
+
+            if (resultado.exitoso) {
+                html += `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Prueba Exitosa</strong><br>
+                        ${resultado.mensaje}<br>
+                        <strong>URL:</strong> ${resultado.url}<br>
+                        <strong>Status:</strong> ${resultado.statusCode}<br>
+                        <strong>Tiempo:</strong> ${resultado.tiempoRespuesta}ms
+                    </div>
+                `;
+
+                if (resultado.datosRecibidos) {
+                    html += `
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Datos Recibidos</h6>
+                            </div>
+                            <div class="card-body">
+                                <pre class="bg-light p-3 rounded" style="font-size: 11px; max-height: 200px; overflow-y: auto;">${resultado.datosRecibidos}</pre>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                html += `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i>
+                        <strong>Prueba Fallida</strong><br>
+                        ${resultado.mensaje}<br>
+                        <strong>URL:</strong> ${resultado.url}<br>
+                        <strong>Status:</strong> ${resultado.statusCode}
+                    </div>
+                `;
+
+                if (resultado.errorDetalle) {
+                    html += `
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Detalles del Error</h6>
+                            </div>
+                            <div class="card-body">
+                                <pre class="bg-light p-3 rounded" style="font-size: 11px;">${resultado.errorDetalle}</pre>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            $('#resultadoContenido').html(html);
+            
+            // Recargar fechas después de la prueba
+            setTimeout(function() {
+                cargarUltimasPruebas();
+            }, 1000);
+        }
+
+        function mostrarResultadoSincronizacion(resultado) {
+            var html = '';
+
+            if (resultado.exitoso) {
+                html += `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Sincronización Exitosa</strong><br>
+                        ${resultado.mensaje}<br>
+                        <strong>Registros procesados:</strong> ${resultado.registrosProcesados}<br>
+                        <strong>Duración:</strong> ${resultado.duracionSegundos.toFixed(2)} segundos
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i>
+                        <strong>Sincronización Fallida</strong><br>
+                        ${resultado.mensaje}
+                    </div>
+                `;
+            }
+
+            $('#resultadoContenido').html(html);
+            
+            // Recargar estadísticas y fechas
+            setTimeout(function() {
+                cargarEstadisticas();
+                cargarUltimasPruebas();
+            }, 1000);
+        }
+
+        function editarAPI(apiId) {
+            // Cargar datos de la API para edición
+            $.ajax({
+                url: '@Url.Action("ObtenerPorId")',
+                type: 'GET',
+                data: { id: apiId },
+                success: function (response) {
+                    if (response) {
+                        // Llenar el formulario con los datos de la API
+                        $('#apiId').val(response.id);
+                        $('#nombre').val(response.nombre);
+                        $('#tipoAPI').val(response.tipoAPI);
+                        $('#url').val(response.url);
+                        $('#endpointUrl').val(response.endpointUrl);
+                        $('#apiKey').val(response.apiKey);
+                        $('#apiSecret').val(response.apiSecret);
+                        $('#descripcion').val(response.descripcion);
+                        $('#activo').prop('checked', response.activo);
+                        
+                        // Cambiar título del modal
+                        $('#modalTitle').text('Editar Configuración de API');
+                        
+                        // Mostrar modal después de llenar los datos
+                        var modal = new bootstrap.Modal(document.getElementById('modalNuevaAPI'));
+                        modal.show();
+                    } else {
+                        alert('No se pudo cargar la información de la API');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Error al cargar la información de la API: ' + error);
+                }
+            });
+        }
+
+        function eliminarAPI(apiId) {
+            if (!confirm('¿Está seguro de que desea eliminar esta configuración de API?')) {
+                return;
+            }
+
+            var form = $('<form method="post" action="@Url.Action("EliminarConfiguracion")"></form>');
+            form.append($('<input type="hidden" name="id" value="' + apiId + '">'));
+            form.append($('<input type="hidden" name="__RequestVerificationToken" value="' + $('input[name="__RequestVerificationToken"]').val() + '">'));
+            $('body').append(form);
+            form.submit();
+        }
+
+        // Configurar formulario para manejar checkbox
+        $('#formAPI').on('submit', function() {
+            var activo = $('#activo').is(':checked');
+            if (!activo) {
+                // Si no está checkeado, el input checkbox no envía nada, así que enviamos false explícitamente
+                // Pero como MVC model binding maneja checkboxes, si hay un hidden con el mismo nombre y value false (que el helper suele generar) funciona.
+                // Aquí lo hacemos manual por si acaso.
+                if ($(this).find('input[name="Activo"][type="hidden"]').length === 0) {
+                     $('<input type="hidden" name="Activo" value="false">').appendTo($(this));
+                }
+            }
+        });
+
+        // Limpiar formulario cuando se abre el modal para nueva API
+        var modalNuevaAPI = document.getElementById('modalNuevaAPI');
+        modalNuevaAPI.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            
+            // Solo limpiar si se abre desde el botón "Nueva API"
+            if (button && button.getAttribute('data-new') === 'true') {
+                // Limpiar formulario para nueva API
+                document.getElementById('formAPI').reset();
+                document.getElementById('apiId').value = 0;
+                document.getElementById('modalTitle').innerText = 'Nueva Configuración de API';
+            }
+        });
+
+        // Manejar envío del formulario con AJAX
+        $('#formAPI').on('submit', function(e) {
+            e.preventDefault();
+            
+            var formData = $(this).serialize();
+            
+            $.ajax({
+                url: '@Url.Action("GuardarConfiguracion")',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        var modalEl = document.getElementById('modalNuevaAPI');
+                        var modal = bootstrap.Modal.getInstance(modalEl);
+                        modal.hide();
+                        
+                        // Mostrar mensaje de éxito
+                        var alertHtml = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle"></i>
+                                <strong>Éxito:</strong> ${response.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+                        
+                        // Insertar alerta al inicio del contenedor
+                        $('.container-fluid').prepend(alertHtml);
+                        
+                        // Recargar datos sin refrescar toda la página
+                        setTimeout(function() {
+                            cargarEstadisticas();
+                            cargarUltimasPruebas();
+                            // Recargar la página para ver la nueva fila en la tabla (o podríamos agregarla dinámicamente)
+                            location.reload(); 
+                        }, 1000);
+                    } else {
+                        alert('Error al guardar: ' + (response.message || 'Error desconocido'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error al guardar la configuración: ' + error);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,158 @@
+@model Inmobiliaria.Net8.DTOs.EstadisticasVisitasML
+
+@if (Model != null)
+{
+    <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+            <i class="bi bi-eye-fill"></i>
+            Visitas de Mercado Libre
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <h6 class="mb-3">@Model.TituloPropiedad</h6>
+        <p class="text-muted small mb-4">
+            <strong>ID:</strong> @Model.ItemId | 
+            <strong>Consultado:</strong> @Model.FechaConsulta.ToString("dd/MM/yyyy HH:mm")
+        </p>
+
+        <div class="row mb-3">
+            <div class="col-4">
+                <div class="card text-center bg-light">
+                    <div class="card-body p-2">
+                        <h4 class="mb-0 text-primary">@Model.VisitasTotales.ToString("N0")</h4>
+                        <small class="text-muted">Total</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card text-center bg-light">
+                    <div class="card-body p-2">
+                        <h4 class="mb-0 text-success">@Model.VisitasUltimos30Dias.ToString("N0")</h4>
+                        <small class="text-muted">30 días</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card text-center bg-light">
+                    <div class="card-body p-2">
+                        <h4 class="mb-0 text-warning">@Model.VisitasUltimos7Dias.ToString("N0")</h4>
+                        <small class="text-muted">7 días</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.VisitasPorDia != null && Model.VisitasPorDia.Any())
+        {
+            <div class="mb-3">
+                <h6 class="mb-2">Visitas por día (últimos 15 días)</h6>
+                <canvas id="miniChartVisitas" height="150"></canvas>
+            </div>
+
+            <div class="table-responsive" style="max-height: 300px;">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th>Fecha</th>
+                            <th class="text-end">Visitas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var visita in Model.VisitasPorDia.OrderByDescending(v => v.Fecha).Take(15))
+                        {
+                            <tr>
+                                <td>
+                                    <small>
+                                        @visita.Fecha.ToString("dd/MM/yyyy")
+                                        <span class="text-muted">(@visita.Fecha.ToString("ddd"))</span>
+                                    </small>
+                                </td>
+                                <td class="text-end">
+                                    <strong>@visita.Visitas</strong>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                No hay datos de visitas detalladas disponibles.
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <a href="@Url.Action("VerVisitas", "MercadoLibre", new { itemId = Model.ItemId, titulo = Model.TituloPropiedad })" 
+           class="btn btn-primary">
+            <i class="bi bi-bar-chart-line"></i>
+            Ver Estadísticas Completas
+        </a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cerrar
+        </button>
+    </div>
+
+    @if (Model.VisitasPorDia != null && Model.VisitasPorDia.Any())
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        <script>
+            const miniCtx = document.getElementById('miniChartVisitas').getContext('2d');
+            const miniChart = new Chart(miniCtx, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(Json.Serialize(Model.VisitasPorDia.OrderByDescending(v => v.Fecha).Take(15).Reverse().Select(v => v.Fecha.ToString("dd/MM")))),
+                    datasets: [{
+                        label: 'Visitas',
+                        data: @Html.Raw(Json.Serialize(Model.VisitasPorDia.OrderByDescending(v => v.Fecha).Take(15).Reverse().Select(v => v.Visitas))),
+                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                        borderColor: 'rgb(13, 110, 253)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    }
+}
+else
+{
+    <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Error
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <div class="alert alert-danger mb-0">
+            <i class="bi bi-x-circle me-2"></i>
+            @(ViewBag.Error ?? "No se pudieron cargar las estadísticas de visitas.")
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            Cerrar
+        </button>
+    </div>
+}
+

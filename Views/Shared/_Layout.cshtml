@@ -15,22 +15,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Sistema Inmobiliario</title>
-    
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
-    
+
     <!-- FontAwesome -->
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true" />
-    
+
     <!-- DataTables CSS (opcional, solo si se usa en la vista) -->
     <link rel="stylesheet" href="~/lib/datatables-dt/css/jquery.dataTables.min.css" asp-append-version="true" />
-    
+
     <!-- Sidebar CSS -->
     <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
-    
+
     <!-- Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    
+
     <!-- jQuery (cargado primero) -->
     <script src="~/lib/jquery/jquery.min.js" asp-append-version="true"></script>
 </head>
@@ -95,10 +95,12 @@
                         <i class="fas fa-sync-alt"></i>
                         Sincronización Portales
                     </a>
+                    <!--
                     <a href="@Url.Action("Index", "SincronizacionPortales2")" class="nav-item" data-controller="sincronizacionportales2">
                         <i class="fas fa-th-large"></i>
                         Sincronización Portales 2
                     </a>
+                    -->
                     <a href="@Url.Action("Index", "ConfiguracionImagenes")" class="nav-item" data-controller="configuracionimagenes">
                         <i class="fas fa-images"></i>
                         Config. Imágenes
@@ -137,7 +139,7 @@
             <div class="page-title">
                 <h2>Sistema de Gestión Inmobiliaria</h2>
             </div>
-            
+
             <!-- Información del usuario y menú -->
             <div class="user-info">
                 <div class="user-menu">
@@ -168,10 +170,10 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-    
+
     <!-- DataTables JS (opcional, solo si se usa) -->
     <script src="~/lib/datatables/jquery.dataTables.min.js" asp-append-version="true"></script>
-    
+
     <!-- Site JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
 
@@ -180,7 +182,7 @@
         $(document).ready(function () {
             // Marcar el elemento activo del menú
             var currentController = '@currentController';
-            
+
             $('.nav-item').each(function() {
                 var itemController = $(this).data('controller');
                 if (itemController && itemController.toLowerCase() === currentController.toLowerCase()) {
@@ -225,26 +227,12 @@
             // Logout
             $('#btnLogout').click(function(e) {
                 e.preventDefault();
-                
+
                 if (confirm('¿Está seguro que desea cerrar sesión?')) {
                     $.ajax({
                         url: '@Url.Action("Logout", "Autenticacion")',
                         type: 'POST',
                         headers: {
-                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                        },
-                        success: function(response) {
-                            if (response.success) {
-                                window.location.href = response.redirectUrl;
-                            } else {
-                                alert('Error al cerrar sesión: ' + response.message);
-                            }
-                        },
-                        error: function() {
-                            alert('Error al cerrar sesión');
-                        }
-                    });
-                }
             });
         });
     </script>

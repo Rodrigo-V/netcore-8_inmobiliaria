@@ -1,0 +1,449 @@
+@{
+    ViewData["Title"] = "Cargador Excel Propit";
+}
+
+<!-- Token Anti-Forgery para AJAX -->
+@Html.AntiForgeryToken()
+
+<style>
+    :root {
+        --card-bg: #1e1e2d;
+        --border-color: #2b2b40;
+        --text-primary: #ffffff;
+        --text-secondary: #a1a5b7;
+        --sidebar-bg: #151521;
+    }
+
+    .dark-card {
+        background-color: var(--card-bg) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-primary) !important;
+        border-radius: 0.625rem;
+    }
+    
+    .dark-card .card-header {
+        background-color: transparent !important;
+        color: var(--text-primary) !important;
+        border-bottom: 1px solid var(--border-color) !important;
+        padding: 1.5rem 2.25rem;
+    }
+    
+    .dark-card .card-body {
+        background-color: transparent !important;
+        color: var(--text-primary) !important;
+        padding: 2.25rem;
+    }
+    
+    .page-header-dark {
+        border-bottom: 1px solid var(--border-color) !important;
+        padding-bottom: 1rem !important;
+        color: var(--text-primary) !important;
+        margin-bottom: 2rem;
+    }
+    
+    .text-muted-dark {
+        color: var(--text-secondary) !important;
+    }
+    
+    .excel-icon {
+        color: #28a745 !important;
+        margin-right: 0.5rem;
+    }
+    
+    .upload-zone {
+        border: 2px dashed var(--border-color);
+        border-radius: 0.625rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+    
+    .upload-zone:hover {
+        border-color: #009ef7;
+        background-color: rgba(0, 158, 247, 0.05);
+    }
+    
+    .upload-zone.dragover {
+        border-color: #28a745;
+        background-color: rgba(40, 167, 69, 0.05);
+    }
+    
+    .upload-icon {
+        font-size: 3.5rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+    
+    .upload-title {
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .upload-subtitle {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+    }
+    
+    .file-input-hidden {
+        display: none;
+    }
+    
+    .file-info {
+        background-color: rgba(40, 167, 69, 0.1);
+        border: 1px dashed #28a745;
+        border-radius: 0.625rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .pre-resumen {
+        color: var(--text-primary) !important;
+        background-color: #151521;
+        padding: 1rem;
+        border-radius: 0.475rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .badge-light {
+        background-color: #f5f8fa;
+        color: #5e6278;
+        font-weight: 500;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header-dark mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 mb-1">
+                            <i class="fas fa-file-excel excel-icon"></i>
+                            Cargador Excel Propit
+                        </h1>
+                        <p class="text-muted-dark mb-0">
+                            Sube archivos Excel con las visitas de Propit para sincronizarlas con la base de datos
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Carga de Archivos -->
+            <div class="card dark-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-upload me-2"></i>
+                        Cargar Archivo Excel
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Instrucciones -->
+                    <div class="alert alert-info mb-4 d-flex align-items-center">
+                        <i class="fas fa-info-circle me-3 fa-2x"></i>
+                        <div>
+                            <h6 class="mb-1"><strong>Instrucciones:</strong></h6>
+                            <p class="mb-0">
+                                1. Descarga el archivo Excel desde la página de Proppit<br>
+                                2. Revisa que las columnas coincidan con lo requerido (A, F, AC)<br>
+                                3. Selecciona y procesa el archivo
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Zona de Drop -->
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <h4 class="upload-title">Arrastra tu archivo Excel aquí</h4>
+                            <p class="upload-subtitle">o haz clic para seleccionar un archivo</p>
+                            <div class="upload-formats">
+                                <span class="badge badge-light">.xlsx</span>
+                                <span class="badge badge-light">.xls</span>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls" class="file-input-hidden">
+                    </div>
+                    
+                    <!-- Información del archivo seleccionado -->
+                    <div id="fileInfo" class="file-info" style="display: none;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-excel text-success fa-2x me-3"></i>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 text-white" id="fileName">Archivo seleccionado</h6>
+                                <small class="text-muted" id="fileSize">Tamaño del archivo</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-icon btn-active-light-danger" onclick="clearFile()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Botón de procesar -->
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-primary btn-lg" id="processBtn" onclick="procesarArchivo()" disabled>
+                            <i class="fas fa-play me-2"></i>
+                            Procesar Archivo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del Formato -->
+            <div class="card dark-card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Formato del Archivo Excel
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
+                        <div>
+                            <h6 class="mb-1"><strong>Formato del archivo Excel de Proppit:</strong></h6>
+                            <ul class="mb-0 ps-3">
+                                <li><strong>Columna A:</strong> ID de la propiedad en Proppit (se guarda en id_Proppit y PropiedadCodigo)</li>
+                                <li><strong>Columna F:</strong> Título de la propiedad (se guarda en PropiedadTitulo)</li>
+                                <li><strong>Columna AC:</strong> Número de visitas (se guarda en la tabla ClicsPortales)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            <div class="card dark-card" id="resultadosCard" style="display: none;">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Resultados del Procesamiento
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="resultadosContent">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Función para limpiar archivo seleccionado
+    window.clearFile = function() {
+        var fileInput = document.getElementById('fileInput');
+        var fileInfo = document.getElementById('fileInfo');
+        var uploadZone = document.getElementById('uploadZone');
+        var processBtn = document.getElementById('processBtn');
+        
+        fileInput.value = '';
+        fileInfo.style.display = 'none';
+        uploadZone.style.display = 'block';
+        processBtn.disabled = true;
+    };
+
+    // Función para mostrar información del archivo
+    function mostrarInfoArchivo(archivo) {
+        var fileInfo = document.getElementById('fileInfo');
+        var uploadZone = document.getElementById('uploadZone');
+        var fileName = document.getElementById('fileName');
+        var fileSize = document.getElementById('fileSize');
+        var processBtn = document.getElementById('processBtn');
+        
+        // Mostrar información del archivo
+        fileName.textContent = archivo.name;
+        fileSize.textContent = (archivo.size / 1024 / 1024).toFixed(2) + ' MB';
+        
+        // Ocultar zona de upload y mostrar info del archivo
+        uploadZone.style.display = 'none';
+        fileInfo.style.display = 'block';
+        
+        // Habilitar botón de procesar
+        processBtn.disabled = false;
+    }
+
+    // Función para validar archivo
+    function validarArchivo(archivo) {
+        var extensionesPermitidas = ['.xlsx', '.xls'];
+        var extension = archivo.name.toLowerCase().substring(archivo.name.lastIndexOf('.'));
+        
+        if (!extensionesPermitidas.includes(extension)) {
+            alert('Solo se permiten archivos Excel (.xlsx, .xls)');
+            return false;
+        }
+        
+        if (archivo.size > 10 * 1024 * 1024) { // 10MB
+            alert('El archivo es demasiado grande. Máximo permitido: 10MB');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Función para procesar archivo
+    window.procesarArchivo = function() {
+        var fileInput = document.getElementById('fileInput');
+        
+        if (!fileInput.files || fileInput.files.length === 0) {
+            alert('Por favor selecciona un archivo Excel');
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('archivo', fileInput.files[0]);
+        
+        // Agregar token anti-forgery
+        var token = $('input[name="__RequestVerificationToken"]').val();
+        formData.append('__RequestVerificationToken', token);
+
+        // Mostrar indicador de carga
+        var boton = document.querySelector('button[onclick="procesarArchivo()"]');
+        var textoOriginal = boton.innerHTML;
+        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+        boton.disabled = true;
+
+        $.ajax({
+            url: '@Url.Action("ProcesarExcel", "CargadorExcelPropit")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                mostrarResultados(response);
+            },
+            error: function(xhr, status, error) {
+                alert('Error al procesar el archivo: ' + error);
+            },
+            complete: function() {
+                // Restaurar botón
+                boton.innerHTML = textoOriginal;
+                boton.disabled = false;
+            }
+        });
+    };
+
+    // Función para mostrar resultados
+    function mostrarResultados(response) {
+        var html = '';
+        
+        if (response.success) {
+            html += '<div class="alert alert-success">';
+            html += '<h6><i class="fas fa-check-circle"></i> Procesamiento Exitoso</h6>';
+            html += '<p>' + response.message + '</p>';
+            html += '</div>';
+            
+            // Estadísticas detalladas
+            html += '<div class="row mb-3">';
+            html += '<div class="col-md-4">';
+            html += '<div class="card bg-success text-white">';
+            html += '<div class="card-body text-center">';
+            html += '<h5 class="card-title">' + (response.clicsProcesados || 0) + '</h5>';
+            html += '<p class="card-text">Visitas Procesadas</p>';
+            html += '</div></div></div>';
+            
+            html += '<div class="col-md-4">';
+            html += '<div class="card bg-info text-white">';
+            html += '<div class="card-body text-center">';
+            html += '<h5 class="card-title">' + (response.propiedadesEncontradas || 0) + '</h5>';
+            html += '<p class="card-text">Propiedades Encontradas</p>';
+            html += '</div></div></div>';
+            
+            html += '<div class="col-md-4">';
+            html += '<div class="card bg-warning text-white">';
+            html += '<div class="card-body text-center">';
+            html += '<h5 class="card-title">' + (response.propiedadesNoEncontradas || 0) + '</h5>';
+            html += '<p class="card-text">Propiedades No Encontradas</p>';
+            html += '</div></div></div>';
+            html += '</div>';
+            
+            // Resumen detallado
+            if (response.resumen) {
+                html += '<div class="card dark-card">';
+                html += '<div class="card-header">';
+                html += '<h6 class="mb-0"><i class="fas fa-chart-line me-2"></i> Resumen Detallado</h6>';
+                html += '</div>';
+                html += '<div class="card-body">';
+                html += '<pre class="pre-resumen" style="white-space: pre-wrap; font-family: monospace; font-size: 12px;">' + response.resumen + '</pre>';
+                html += '</div></div>';
+            }
+            
+            // Errores si los hay
+            if (response.errores && response.errores.length > 0) {
+                html += '<div class="alert alert-warning mt-3">';
+                html += '<h6><i class="fas fa-exclamation-triangle"></i> Advertencias</h6>';
+                html += '<ul class="mb-0">';
+                for (var i = 0; i < Math.min(response.errores.length, 5); i++) {
+                    html += '<li>' + response.errores[i] + '</li>';
+                }
+                if (response.errores.length > 5) {
+                    html += '<li>... y ' + (response.errores.length - 5) + ' advertencias más</li>';
+                }
+                html += '</ul></div>';
+            }
+        } else {
+            html += '<div class="alert alert-danger">';
+            html += '<h6><i class="fas fa-times-circle"></i> Error en el Procesamiento</h6>';
+            html += '<p>' + response.message + '</p>';
+            html += '</div>';
+        }
+        
+        document.getElementById('resultadosContent').innerHTML = html;
+        document.getElementById('resultadosCard').style.display = 'block';
+    }
+
+    $(document).ready(function() {
+        var fileInput = document.getElementById('fileInput');
+        var uploadZone = document.getElementById('uploadZone');
+        
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files.length > 0) {
+                    var archivo = e.target.files[0];
+                    if (validarArchivo(archivo)) {
+                        mostrarInfoArchivo(archivo);
+                    } else {
+                        fileInput.value = '';
+                    }
+                }
+            });
+        }
+        
+        if (uploadZone) {
+            uploadZone.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            uploadZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+            
+            uploadZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+            });
+            
+            uploadZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                
+                var files = e.dataTransfer.files;
+                if (files && files.length > 0) {
+                    var archivo = files[0];
+                    if (validarArchivo(archivo)) {
+                        var dt = new DataTransfer();
+                        dt.items.add(archivo);
+                        fileInput.files = dt.files;
+                        mostrarInfoArchivo(archivo);
+                    }
+                }
+            });
+        }
+    });
+</script>
+}

@@ -4,7 +4,8 @@ using Inmobiliaria.Net8.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 
 // Registrar IHttpContextAccessor para acceder al contexto HTTP en las vistas
 builder.Services.AddHttpContextAccessor();
@@ -34,6 +35,12 @@ builder.Services.AddScoped<GestionUsuariosService>();
 builder.Services.AddScoped<ConfiguracionImagenesService>();
 builder.Services.AddScoped<SincronizacionPortalesService>();
 builder.Services.AddScoped<PropiedadesService>();
+builder.Services.AddScoped<APIConfiguracionService>();
+builder.Services.AddScoped<ConfiguracionPortalesService>();
+builder.Services.AddScoped<CargadorExcelPropitService>();
+
+// Registrar servicio de Mercado Libre con HttpClient
+builder.Services.AddHttpClient<MercadoLibreService>();
 
 // Configurar sesiones
 builder.Services.AddDistributedMemoryCache();
