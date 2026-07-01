@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Inmobiliaria.Net8.DTOs;
+using Inmobiliaria.Net8.Helpers;
 
 namespace Inmobiliaria.Net8.Services
 {
@@ -34,7 +35,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("SP_ObtenerMatrizClics", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandTimeout = 120;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 // Parámetros del stored procedure
                 command.Parameters.AddWithValue("@Comuna", string.IsNullOrEmpty(comuna) ? (object)DBNull.Value : comuna);
@@ -84,76 +85,47 @@ namespace Inmobiliaria.Net8.Services
         }
 
         /// <summary>
-        /// Obtener resumen de portales desde la matriz
+        /// Obtener resumen de portales (consulta la matriz en BD).
         /// </summary>
         public async Task<List<ResumenPortal>> ObtenerResumenPortalesAsync()
         {
+            var matrizData = await ObtenerMatrizSincronizacionAsync();
+            return CalcularResumenDesdeMatriz(matrizData);
+        }
+
+        /// <summary>
+        /// Calcula estadísticas por portal a partir de datos de matriz ya cargados.
+        /// </summary>
+        public List<ResumenPortal> CalcularResumenDesdeMatriz(List<MatrizSincronizacion> matrizData)
+        {
             var lista = new List<ResumenPortal>();
 
-            try
-            {
-                // Obtener datos de la matriz para calcular resumen
-                var matrizData = await ObtenerMatrizSincronizacionAsync();
+            if (!matrizData.Any())
+                return lista;
 
-                if (matrizData.Any())
+            var portales = new[]
+            {
+                ("Portal Inmobiliario", "PortalInmobiliario"),
+                ("Proppit", "Proppit"),
+                ("Chile Propiedades", "ChilePropiedades"),
+                ("TocToc", "TocToc")
+            };
+
+            foreach (var (nombrePortal, clavePortal) in portales)
+            {
+                var totalClics = matrizData.Sum(m => m.ClicsPorPortal.GetValueOrDefault(clavePortal, 0));
+                var propiedadesActivas = matrizData.Count(m => m.ClicsPorPortal.GetValueOrDefault(clavePortal, 0) > 0);
+
+                lista.Add(new ResumenPortal
                 {
-                    // Portal Inmobiliario
-                    var totalPortalInmob = matrizData.Sum(m => m.ClicsPorPortal.ContainsKey("PortalInmobiliario") ? m.ClicsPorPortal["PortalInmobiliario"] : 0);
-                    var propiedadesPortalInmob = matrizData.Count(m => m.ClicsPorPortal.ContainsKey("PortalInmobiliario") && m.ClicsPorPortal["PortalInmobiliario"] > 0);
-                    
-                    lista.Add(new ResumenPortal
-                    {
-                        NombrePortal = "Portal Inmobiliario",
-                        TotalClics = totalPortalInmob,
-                        PropiedadesActivas = propiedadesPortalInmob,
-                        PromedioClics = propiedadesPortalInmob > 0 ? (double)totalPortalInmob / propiedadesPortalInmob : 0
-                    });
-
-                    // Proppit
-                    var totalProppit = matrizData.Sum(m => m.ClicsPorPortal.ContainsKey("Proppit") ? m.ClicsPorPortal["Proppit"] : 0);
-                    var propiedadesProppit = matrizData.Count(m => m.ClicsPorPortal.ContainsKey("Proppit") && m.ClicsPorPortal["Proppit"] > 0);
-                    
-                    lista.Add(new ResumenPortal
-                    {
-                        NombrePortal = "Proppit",
-                        TotalClics = totalProppit,
-                        PropiedadesActivas = propiedadesProppit,
-                        PromedioClics = propiedadesProppit > 0 ? (double)totalProppit / propiedadesProppit : 0
-                    });
-
-                    // Chile Propiedades
-                    var totalChileProp = matrizData.Sum(m => m.ClicsPorPortal.ContainsKey("ChilePropiedades") ? m.ClicsPorPortal["ChilePropiedades"] : 0);
-                    var propiedadesChileProp = matrizData.Count(m => m.ClicsPorPortal.ContainsKey("ChilePropiedades") && m.ClicsPorPortal["ChilePropiedades"] > 0);
-                    
-                    lista.Add(new ResumenPortal
-                    {
-                        NombrePortal = "Chile Propiedades",
-                        TotalClics = totalChileProp,
-                        PropiedadesActivas = propiedadesChileProp,
-                        PromedioClics = propiedadesChileProp > 0 ? (double)totalChileProp / propiedadesChileProp : 0
-                    });
-
-                    // TocToc
-                    var totalTocToc = matrizData.Sum(m => m.ClicsPorPortal.ContainsKey("TocToc") ? m.ClicsPorPortal["TocToc"] : 0);
-                    var propiedadesTocToc = matrizData.Count(m => m.ClicsPorPortal.ContainsKey("TocToc") && m.ClicsPorPortal["TocToc"] > 0);
-                    
-                    lista.Add(new ResumenPortal
-                    {
-                        NombrePortal = "TocToc",
-                        TotalClics = totalTocToc,
-                        PropiedadesActivas = propiedadesTocToc,
-                        PromedioClics = propiedadesTocToc > 0 ? (double)totalTocToc / propiedadesTocToc : 0
-                    });
-                }
-
-                _logger.LogInformation("Resumen de portales calculado: {Count} portales", lista.Count);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener resumen de portales");
-                throw;
+                    NombrePortal = nombrePortal,
+                    TotalClics = totalClics,
+                    PropiedadesActivas = propiedadesActivas,
+                    PromedioClics = propiedadesActivas > 0 ? (double)totalClics / propiedadesActivas : 0
+                });
             }
 
+            _logger.LogInformation("Resumen de portales calculado: {Count} portales", lista.Count);
             return lista;
         }
 
@@ -173,7 +145,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("SP_ObtenerPropiedadesConClics", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandTimeout = 120;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 // Parámetros del stored procedure
                 command.Parameters.AddWithValue("@BuscarPropiedad", string.IsNullOrEmpty(buscarPropiedad) ? (object)DBNull.Value : buscarPropiedad);
@@ -253,7 +225,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("SP_ObtenerEstadisticasGenerales", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandTimeout = 30;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 _logger.LogInformation("Ejecutando SP_ObtenerEstadisticasGenerales");
                 
@@ -297,7 +269,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("SP_ObtenerDatosExcelMatriz", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandTimeout = 120;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 command.Parameters.AddWithValue("@FechaDesde", fechaDesde.HasValue ? (object)fechaDesde.Value : DBNull.Value);
                 command.Parameters.AddWithValue("@FechaHasta", fechaHasta.HasValue ? (object)fechaHasta.Value : DBNull.Value);

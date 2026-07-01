@@ -32,6 +32,7 @@ namespace Inmobiliaria.Net8.DTOs
         public DateTime? FechaDesde { get; set; }
         public DateTime? FechaHasta { get; set; }
         public string? ID_Propiedad { get; set; }
+        public string? Estado { get; set; }
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 25;
         public string ColumnaOrden { get; set; } = "Fecha_Accion";

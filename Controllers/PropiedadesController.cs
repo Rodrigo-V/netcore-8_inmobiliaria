@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Inmobiliaria.Net8.Services;
 using Inmobiliaria.Net8.DTOs;
+using Inmobiliaria.Net8.Helpers;
 
 namespace Inmobiliaria.Net8.Controllers
 {
@@ -27,68 +28,53 @@ namespace Inmobiliaria.Net8.Controllers
         [HttpPost]
         public async Task<IActionResult> GetData()
         {
+            var request = DataTablesHelper.Parse(Request.Form);
             try
             {
-                var draw = Convert.ToInt32(Request.Form["draw"].FirstOrDefault() ?? "1");
-                var start = Convert.ToInt32(Request.Form["start"].FirstOrDefault() ?? "0");
-                var length = Convert.ToInt32(Request.Form["length"].FirstOrDefault() ?? "10");
-                var orderColumnIndex = Request.Form["order[0][column]"].FirstOrDefault() ?? "0";
-                var orderDir = Request.Form["order[0][dir]"].FirstOrDefault() ?? "desc";
-                var searchValue = Request.Form["search[value]"].FirstOrDefault();
-
-                // Mapear columna para ordenamiento (nombres que espera el SP)
-                string columna = orderColumnIndex switch
+                string columna = request.OrderColumnIndex switch
                 {
                     "0" => "ID_Propiedad",
                     "1" => "Codigo_Referencia",
-                    "2" => "Titulo", // SP espera "Titulo"
-                    "3" => "Tipo_Propiedad", // SP espera "Tipo_Propiedad"
-                    "4" => "Precio", // SP espera "Precio"
+                    "2" => "Titulo",
+                    "3" => "Tipo_Propiedad",
+                    "4" => "Precio",
                     "5" => "Comuna",
                     "9" => "Agente_Responsable",
-                    _ => "ID_Propiedad" // Default a ID_Propiedad
+                    _ => "ID_Propiedad"
                 };
 
                 var (propiedades, totalRecords) = await _propiedadesService.ObtenerPropiedadesAsync(
-                    searchValue,
+                    request.SearchValue,
                     columna,
-                    orderDir,
-                    start,
-                    length
+                    request.OrderDirection,
+                    request.Start,
+                    request.Length
                 );
 
-                return Json(new
-                {
-                    draw = draw,
-                    recordsTotal = totalRecords,
-                    recordsFiltered = totalRecords,
-                    data = propiedades.Select(p => new
-                    {
-                        id_Propiedad = p.ID_Propiedad,
-                        codigo_Referencia = p.Codigo_Referencia,
-                        title = p.Title,
-                        tipo_elemento = p.Tipo_elemento,
-                        valor = p.Valor,
-                        comuna = p.Comuna,
-                        dormitorios_Banos = $"{p.Dormitorios ?? "0"}/{p.Banos ?? "0"}",
-                        metros = $"{p.M2_Construidos ?? "0"} / {p.M2_Terreno ?? "0"}",
-                        estado = p.Estado,
-                        agente_Responsable = p.Agente_Responsable
-                    })
-                });
+                return Json(DataTablesHelper.Success(request.Draw, totalRecords, MapearPropiedadesParaDataTable(propiedades)));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener datos de propiedades");
-                return Json(new
-                {
-                    draw = 0,
-                    recordsTotal = 0,
-                    recordsFiltered = 0,
-                    data = new List<object>(),
-                    error = ex.Message
-                });
+                return Json(DataTablesHelper.Error(request.Draw, ex.Message));
             }
+        }
+
+        private static IEnumerable<object> MapearPropiedadesParaDataTable(IEnumerable<Propiedad> propiedades)
+        {
+            return propiedades.Select(p => new
+            {
+                id_Propiedad = p.ID_Propiedad,
+                codigo_Referencia = p.Codigo_Referencia,
+                title = p.Title,
+                tipo_elemento = p.Tipo_elemento,
+                valor = p.Valor,
+                comuna = p.Comuna,
+                dormitorios_Banos = $"{p.Dormitorios ?? "0"}/{p.Banos ?? "0"}",
+                metros = $"{p.M2_Construidos ?? "0"} / {p.M2_Terreno ?? "0"}",
+                estado = p.Estado,
+                agente_Responsable = p.Agente_Responsable
+            });
         }
 
         // POST: Propiedades/ObtenerPorId

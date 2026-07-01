@@ -5,28 +5,36 @@
 /* Contenedor principal */
 .propiedades-container {
     background-color: #1a1a1a;
-    padding: 20px;
+    padding: 12px;
     border-radius: 8px;
 }
 
 /* Controles de la tabla */
 .table-controls {
     background-color: #1D1D1D;
-    padding: 15px;
+    padding: 10px 14px;
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.propiedades-title {
+    color: white;
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
 }
 
 .btn-add-propiedad {
     background: linear-gradient(45deg, #27ae60, #2ecc71);
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 7px 14px;
     border-radius: 6px;
-    font-weight: bold;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -40,20 +48,22 @@
 /* ESTILOS DE LA TABLA */
 /* ===================================================== */
 
-/* Cambiar tamaño de fuente para toda la tabla */
-table {
-    font-size: 16px;
+/* Cambiar tamaño de fuente para toda la tabla (solo propiedades) */
+.propiedades-container table,
+.propiedades-container #propiedadTable {
+    font-size: 11px;
     border-collapse: collapse;
     width: 100%;
     background-color: #1D1D1D;
 }
 
 /* CONTENEDOR DE LA TABLA CON ANCHO CONTROLADO */
-.dataTables_wrapper {
+.propiedades-container .dataTables_wrapper {
     width: 99.9% !important;
     max-width: none !important;
     margin: 0 auto !important;
     overflow-x: hidden !important;
+    font-size: 11px;
 }
 
 /* Tabla responsive */
@@ -64,21 +74,27 @@ table {
 }
 
 /* Encabezados */
-th {
-    font-size: 12px;
-    font-weight: bold;
+#propiedadTable th {
+    font-size: 10px;
+    font-weight: 600;
     background-color: #272727;
     color: white;
+    padding: 6px 4px !important;
+    white-space: nowrap;
 }
 
 /* Celdas */
-td {
-    font-size: 11px;
+#propiedadTable td {
+    font-size: 10px;
     color: white;
+    padding: 5px 4px !important;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Filas alternadas con negro claro */
-tr:nth-child(even) {
+#propiedadTable tr:nth-child(even) {
     background-color: #404040 !important;
 }
 
@@ -87,23 +103,25 @@ tr:nth-child(even) {
 /* ===================================================== */
 
 /* Contenedor de paginación */
-.dataTables_paginate {
+.propiedades-container .dataTables_paginate {
     background-color: #404040 !important;
     border-radius: 6px !important;
-    padding: 10px !important;
-    margin-top: 15px !important;
+    padding: 6px !important;
+    margin-top: 10px !important;
+    font-size: 10px !important;
 }
 
 /* Botones de paginación */
-.dataTables_paginate .paginate_button,
-.dataTables_wrapper .dataTables_paginate .paginate_button {
+.propiedades-container .dataTables_paginate .paginate_button,
+.propiedades-container .dataTables_wrapper .dataTables_paginate .paginate_button {
     background-color: #272727 !important;
     color: white !important;
     border: 1px solid #404040 !important;
-    padding: 8px 12px !important;
+    padding: 4px 8px !important;
     margin: 0 2px !important;
     border-radius: 4px !important;
-    font-weight: bold !important;
+    font-weight: 600 !important;
+    font-size: 10px !important;
     transition: all 0.3s ease !important;
 }
 
@@ -135,35 +153,49 @@ tr:nth-child(even) {
 /* INFORMACIÓN DE LA TABLA Y CONTROLES */
 /* ===================================================== */
 
-.dataTables_info {
+.propiedades-container .dataTables_info {
     color: white !important;
     background-color: #404040 !important;
-    padding: 10px !important;
+    padding: 6px 8px !important;
     border-radius: 4px !important;
-    margin-top: 10px !important;
-    font-weight: bold !important;
+    margin-top: 8px !important;
+    font-weight: 600 !important;
+    font-size: 10px !important;
 }
 
 /* Selector de longitud de página */
-.dataTables_length {
+.propiedades-container .dataTables_length {
     color: white !important;
     background-color: #404040 !important;
-    padding: 10px !important;
+    padding: 6px 8px !important;
     border-radius: 4px !important;
-    margin-bottom: 15px !important;
+    margin-bottom: 10px !important;
+    font-size: 10px !important;
 }
 
-.dataTables_length select {
+.propiedades-container .dataTables_length select {
     background-color: #272727 !important;
     color: white !important;
     border: 1px solid #404040 !important;
     border-radius: 4px !important;
-    padding: 5px !important;
+    padding: 2px 4px !important;
+    font-size: 10px !important;
 }
 
-.dataTables_length label {
+.propiedades-container .dataTables_length label {
     color: white !important;
-    font-weight: bold !important;
+    font-weight: 600 !important;
+    font-size: 10px !important;
+}
+
+.propiedades-container .dataTables_filter label {
+    font-size: 10px !important;
+    color: white !important;
+}
+
+.propiedades-container .dataTables_filter input {
+    font-size: 10px !important;
+    padding: 3px 6px !important;
 }
 
 /* ===================================================== */
@@ -171,35 +203,35 @@ tr:nth-child(even) {
 /* ===================================================== */
 
 /* Contenedor de botones */
-.dt-buttons {
-    margin-bottom: 15px !important;
+.propiedades-container .dt-buttons {
+    margin-bottom: 10px !important;
     display: flex !important;
-    gap: 8px !important;
+    gap: 6px !important;
     flex-wrap: wrap !important;
     background-color: #1D1D1D !important;
-    padding: 10px !important;
+    padding: 6px !important;
     border-radius: 6px !important;
 }
 
 /* Estilos base para todos los botones de DataTables */
-.dt-buttons .dt-button,
-.dt-buttons button,
-.dt-buttons a.dt-button {
+.propiedades-container .dt-buttons .dt-button,
+.propiedades-container .dt-buttons button,
+.propiedades-container .dt-buttons a.dt-button {
     background-color: #272727 !important;
     color: white !important;
-    border: 2px solid #555 !important;
-    padding: 8px 12px !important;
+    border: 1px solid #555 !important;
+    padding: 4px 8px !important;
     border-radius: 4px !important;
-    font-weight: bold !important;
-    font-size: 12px !important;
+    font-weight: 600 !important;
+    font-size: 10px !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 4px !important;
     text-decoration: none !important;
     margin: 0 !important;
-    min-width: 80px !important;
+    min-width: 64px !important;
     justify-content: center !important;
 }
 
@@ -261,20 +293,20 @@ tr:nth-child(even) {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 10px !important;
+    gap: 4px !important;
     white-space: nowrap !important;
 }
 
 .action-buttons i {
-    width: 40px !important;
-    height: 40px !important;
+    width: 26px !important;
+    height: 26px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 4px !important;
     transition: all 0.3s ease !important;
     cursor: pointer !important;
-    font-size: 20px !important;
+    font-size: 12px !important;
 }
 
 .action-buttons i.edit,
@@ -306,12 +338,12 @@ tr:nth-child(even) {
 }
 
 /* Centrar los botones de acciones en la celda */
-td:last-child {
+#propiedadTable td:last-child {
     text-align: center !important;
     vertical-align: middle !important;
 }
 
-th:last-child {
+#propiedadTable th:last-child {
     text-align: center !important;
     vertical-align: middle !important;
 }
@@ -447,9 +479,9 @@ th:last-child {
     }
 
     .action-buttons i {
-        width: 35px !important;
-        height: 35px !important;
-        font-size: 18px !important;
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 11px !important;
     }
     
     .card-edit-propiedad {

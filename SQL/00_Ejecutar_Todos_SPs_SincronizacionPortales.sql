@@ -76,12 +76,12 @@ BEGIN
         p.M2_Terreno AS MetrosTerreno,
         p.Agente_Responsable,
         p.Url_Imagen,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''PortalInmobiliario.com''), 0) AS ClicsPortalInmobiliario,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''Proppit''), 0) AS ClicsProppit,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''ChilePropiedades''), 0) AS ClicsChilePropiedades,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''TocToc''), 0) AS ClicsTocToc,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad), 0) AS TotalClicsTodosPortales,
-        (SELECT MAX(Fecha_Clic) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad) AS UltimoClick
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''PortalInmobiliario.com''), 0) AS ClicsPortalInmobiliario,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''Proppit''), 0) AS ClicsProppit,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''ChilePropiedades''), 0) AS ClicsChilePropiedades,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''TocToc''), 0) AS ClicsTocToc,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad), 0) AS TotalClicsTodosPortales,
+        (SELECT MAX(Fecha_Clic) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad) AS UltimoClick
     FROM Propiedades p
     WHERE 1=1';
 
@@ -125,15 +125,15 @@ BEGIN
 
     SELECT 
         COUNT(DISTINCT p.ID_Propiedad) AS TotalPropiedades,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales), 0) AS TotalClics,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales), 0) AS TotalClics,
         COUNT(DISTINCT CASE 
-            WHEN EXISTS (SELECT 1 FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad) 
+            WHEN EXISTS (SELECT 1 FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad) 
             THEN p.ID_Propiedad 
             ELSE NULL 
         END) AS PropiedadesConClics,
         CASE 
             WHEN COUNT(DISTINCT p.ID_Propiedad) > 0 
-            THEN CAST(ISNULL((SELECT COUNT(*) FROM Clics_Portales), 0) AS FLOAT) / COUNT(DISTINCT p.ID_Propiedad)
+            THEN CAST(ISNULL((SELECT COUNT(*) FROM ClicsPortales), 0) AS FLOAT) / COUNT(DISTINCT p.ID_Propiedad)
             ELSE 0 
         END AS PromedioClicsPorPropiedad
     FROM Propiedades p;
@@ -177,7 +177,7 @@ BEGIN
         SUM(CASE WHEN cp.NombrePortal = 'Proppit' THEN 1 ELSE 0 END) AS ClicsProppit,
         SUM(CASE WHEN cp.NombrePortal = 'ChilePropiedades' THEN 1 ELSE 0 END) AS ClicsChilePropiedades,
         SUM(CASE WHEN cp.NombrePortal = 'TocToc' THEN 1 ELSE 0 END) AS ClicsTocToc
-    FROM Clics_Portales cp
+    FROM ClicsPortales cp
     INNER JOIN Propiedades p ON cp.ID_Propiedad = p.ID_Propiedad
     WHERE CAST(cp.Fecha_Clic AS DATE) BETWEEN @FechaDesde AND @FechaHasta
     GROUP BY CAST(cp.Fecha_Clic AS DATE), cp.ID_Propiedad, p.Title, p.Comuna

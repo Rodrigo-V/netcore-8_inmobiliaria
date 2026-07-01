@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Inmobiliaria.Net8.Services;
 using Inmobiliaria.Net8.DTOs;
+using Inmobiliaria.Net8.Helpers;
 
 namespace Inmobiliaria.Net8.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     public class ConfiguracionPortalesController : Controller
     {
         private readonly ConfiguracionPortalesService _service;
@@ -23,45 +26,28 @@ namespace Inmobiliaria.Net8.Controllers
         [HttpPost]
         public async Task<IActionResult> GetData()
         {
+            var request = DataTablesHelper.Parse(Request.Form);
             try
             {
-                var draw = Request.Form["draw"].FirstOrDefault();
-                var start = Request.Form["start"].FirstOrDefault();
-                var length = Request.Form["length"].FirstOrDefault();
-                var searchValue = Request.Form["search[value]"].FirstOrDefault();
-                var sortColumnIndex = Request.Form["order[0][column]"].FirstOrDefault();
-                var sortDirection = Request.Form["order[0][dir]"].FirstOrDefault();
-
-                int pageSize = length != null ? Convert.ToInt32(length) : 10;
-                int skip = start != null ? Convert.ToInt32(start) : 0;
-                int pageNumber = (skip / pageSize) + 1;
-
                 var filtro = new FiltroPropiedadDTO
                 {
-                    IDPropiedad = searchValue,
-                    Min = skip + 1,
-                    Max = skip + pageSize,
-                    PageSize = pageSize,
-                    Columna = GetOrderColumn(sortColumnIndex),
-                    Direccion = sortDirection ?? "DESC"
+                    IDPropiedad = request.SearchValue,
+                    Min = request.Start + 1,
+                    Max = request.Start + request.Length,
+                    PageSize = request.Length,
+                    Columna = GetOrderColumn(request.OrderColumnIndex),
+                    Direccion = request.OrderDirection
                 };
 
                 var propiedades = await _service.ObtenerPropiedadesAsync(filtro);
-                
                 var totalRecords = propiedades.FirstOrDefault()?.TotalRowCount ?? 0;
 
-                return Json(new
-                {
-                    draw = draw,
-                    recordsTotal = totalRecords,
-                    recordsFiltered = totalRecords,
-                    data = propiedades
-                });
+                return Json(DataTablesHelper.Success(request.Draw, totalRecords, MapearPortalesParaDataTable(propiedades)));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener datos para tabla");
-                return Json(new { error = ex.Message });
+                return Json(DataTablesHelper.Error(request.Draw, ex.Message));
             }
         }
 
@@ -113,7 +99,7 @@ namespace Inmobiliaria.Net8.Controllers
             }
         }
 
-        private string GetOrderColumn(string? columnIndex)
+        private static string GetOrderColumn(string? columnIndex)
         {
             return columnIndex switch
             {
@@ -125,8 +111,27 @@ namespace Inmobiliaria.Net8.Controllers
                 "6" => "id_PortalInmobiliario",
                 "7" => "id_Proppit",
                 "8" => "id_PortalRosch",
-                _ => "Fecha_Publicacion"
+                _ => "ID_Propiedad"
             };
+        }
+
+        private static IEnumerable<object> MapearPortalesParaDataTable(IEnumerable<PropiedadPortalDTO> propiedades)
+        {
+            return propiedades.Select(p => new
+            {
+                iD_Propiedad = p.ID_Propiedad,
+                codigo_Referencia = p.Codigo_Referencia,
+                titulo = p.Titulo,
+                direccion = p.Direccion,
+                comuna = p.Comuna,
+                url_Imagen = p.Url_Imagen,
+                imagen_Propiedad = p.Imagen_Propiedad,
+                id_TocToc = p.id_TocToc,
+                id_ChilePropiedades = p.id_ChilePropiedades,
+                id_PortalInmobiliario = p.id_PortalInmobiliario,
+                id_Proppit = p.id_Proppit,
+                id_PortalRosch = p.id_PortalRosch
+            });
         }
     }
 }

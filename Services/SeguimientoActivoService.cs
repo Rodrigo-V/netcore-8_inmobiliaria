@@ -38,6 +38,7 @@ namespace Inmobiliaria.Net8.Services
                 command.Parameters.AddWithValue("@Agente", (object?)filtro.Agente ?? DBNull.Value);
                 command.Parameters.AddWithValue("@ID_Cliente", (object?)filtro.ID_Cliente ?? DBNull.Value);
                 command.Parameters.AddWithValue("@Tipo_Accion", (object?)filtro.Tipo_Accion ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Estado", (object?)filtro.Estado ?? DBNull.Value);
                 command.Parameters.AddWithValue("@FechaDesde", (object?)filtro.FechaDesde ?? DBNull.Value);
                 command.Parameters.AddWithValue("@FechaHasta", (object?)filtro.FechaHasta ?? DBNull.Value);
                 command.Parameters.AddWithValue("@ID_Propiedad", (object?)filtro.ID_Propiedad ?? DBNull.Value);
@@ -98,34 +99,26 @@ namespace Inmobiliaria.Net8.Services
                 using var command = new SqlCommand("SP_ObtenerAccionesCliente", connection);
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@ID_Cliente", idCliente);
-                command.Parameters.AddWithValue("@TopRegistros", 50); // Obtener las últimas 50 acciones
+                command.Parameters.AddWithValue("@TopRegistros", 50);
 
-                _logger.LogInformation("Ejecutando SP: SP_ObtenerAccionesCliente con ID_Cliente: {IdCliente}", idCliente);
-                
                 using var reader = await command.ExecuteReaderAsync();
 
                 while (await reader.ReadAsync())
                 {
-                    var seguimiento = new SeguimientoActivo
+                    lista.Add(new SeguimientoActivo
                     {
-                        ID_Cliente = idCliente, // No viene del SP, usar el parámetro
+                        ID_Cliente = idCliente,
                         ID_Propiedad = reader["ID_Propiedad"]?.ToString(),
                         Agente = reader["Agente"]?.ToString() ?? string.Empty,
-                        Codigo_Agente = null, // No viene del SP
                         Fecha_Accion = reader["Fecha_Accion"] != DBNull.Value ? Convert.ToDateTime(reader["Fecha_Accion"]) : DateTime.Now,
                         Tipo_Accion = reader["Tipo_Accion"]?.ToString() ?? string.Empty,
                         Descripcion_Accion = reader["Descripcion_Accion"]?.ToString() ?? string.Empty,
                         Resultado = reader["Resultado"]?.ToString() ?? string.Empty,
                         Estado = reader["Estado"]?.ToString() ?? string.Empty,
                         Fecha_Proximo_Contacto = reader["Fecha_Proximo_Contacto"] != DBNull.Value ? Convert.ToDateTime(reader["Fecha_Proximo_Contacto"]) : null
-                    };
-                    
-                    lista.Add(seguimiento);
-                    _logger.LogInformation("Seguimiento leído - Tipo: {Tipo}, Fecha: {Fecha}, Resultado: {Resultado}", 
-                        seguimiento.Tipo_Accion, seguimiento.Fecha_Accion, seguimiento.Resultado);
+                    });
                 }
 
-                _logger.LogInformation("Total de seguimientos encontrados: {Count}", lista.Count);
                 return lista;
             }
             catch (Exception ex)
@@ -133,6 +126,74 @@ namespace Inmobiliaria.Net8.Services
                 _logger.LogError(ex, "Error al obtener seguimientos del cliente: {IdCliente}", idCliente);
                 throw new Exception($"Error al obtener seguimientos del cliente: {ex.Message}", ex);
             }
+        }
+
+        public async Task<List<string>> ObtenerClientesDistintosAsync()
+        {
+            var lista = new List<string>();
+
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                const string sql = @"
+                    SELECT DISTINCT ID_Cliente
+                    FROM Seguimiento_Activo
+                    WHERE ID_Cliente IS NOT NULL AND LTRIM(RTRIM(ID_Cliente)) <> ''
+                    ORDER BY ID_Cliente";
+
+                using var command = new SqlCommand(sql, connection);
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    var id = reader["ID_Cliente"]?.ToString();
+                    if (!string.IsNullOrWhiteSpace(id))
+                        lista.Add(id);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener clientes distintos de seguimiento");
+                throw;
+            }
+
+            return lista;
+        }
+
+        public async Task<List<string>> ObtenerAgentesDistintosAsync()
+        {
+            var lista = new List<string>();
+
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                const string sql = @"
+                    SELECT DISTINCT Agente
+                    FROM Seguimiento_Activo
+                    WHERE Agente IS NOT NULL AND LTRIM(RTRIM(Agente)) <> ''
+                    ORDER BY Agente";
+
+                using var command = new SqlCommand(sql, connection);
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    var agente = reader["Agente"]?.ToString();
+                    if (!string.IsNullOrWhiteSpace(agente))
+                        lista.Add(agente);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener agentes distintos de seguimiento");
+                throw;
+            }
+
+            return lista;
         }
 
         // AGREGAR nuevo seguimiento

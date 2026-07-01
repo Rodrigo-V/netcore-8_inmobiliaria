@@ -28,7 +28,7 @@ namespace Inmobiliaria.Net8.Controllers
                 _logger.LogInformation("Accediendo a Vista Matriz de Sincronización de Portales");
 
                 var matrizData = await _sincronizacionService.ObtenerMatrizSincronizacionAsync(propiedad, comuna, region, tipoPropiedad);
-                var resumenPortales = await _sincronizacionService.ObtenerResumenPortalesAsync();
+                var resumenPortales = _sincronizacionService.CalcularResumenDesdeMatriz(matrizData);
 
                 ViewBag.MatrizData = matrizData;
                 ViewBag.ResumenPortales = resumenPortales;

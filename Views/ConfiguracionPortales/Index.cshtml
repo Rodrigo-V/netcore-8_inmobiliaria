@@ -3,7 +3,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid">
+<link rel="stylesheet" href="~/css/configuracionportales.css" asp-append-version="true" />
+
+<div class="container-fluid portales-module">
     <div class="row">
         <div class="col-12">
             <div class="card mb-4">
@@ -28,8 +30,8 @@
                         Propiedades y sus IDs de Portales
                     </h5>
                 </div>
-                <div class="card-body">
-                    <table id="tablaPropiedades" class="table table-striped table-bordered" style="width:100%">
+                <div class="card-body portales-table-card">
+                    <table id="tablaPropiedades" class="display" cellpadding="0" cellspacing="0" border="0" style="width:100%">
                         <thead>
                             <tr>
                                 <th>ID Propiedad</th>
@@ -149,122 +151,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Inicializar DataTable
-            var tabla = $('#tablaPropiedades').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '@Url.Action("GetData", "ConfiguracionPortales")',
-                    type: 'POST'
-                },
-                columns: [
-                    { data: 'ID_Propiedad', name: 'ID_Propiedad' },
-                    { 
-                        data: null,
-                        orderable: false,
-                        render: function(data, type, row) {
-                            var imagenUrl = row.Url_Imagen || row.Imagen_Propiedad;
-                            if (imagenUrl) {
-                                return '<img src="' + imagenUrl + '" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">';
-                            }
-                            return '<div class="text-center text-muted"><i class="fas fa-image fa-2x"></i></div>';
-                        }
-                    },
-                    { data: 'Titulo', name: 'Titulo' },
-                    { data: 'Direccion', name: 'Direccion' },
-                    { data: 'id_TocToc', name: 'id_TocToc', defaultContent: '' },
-                    { data: 'id_ChilePropiedades', name: 'id_ChilePropiedades', defaultContent: '' },
-                    { data: 'id_PortalInmobiliario', name: 'id_PortalInmobiliario', defaultContent: '' },
-                    { data: 'id_Proppit', name: 'id_Proppit', defaultContent: '' },
-                    { data: 'id_PortalRosch', name: 'id_PortalRosch', defaultContent: '' },
-                    { 
-                        data: null, 
-                        orderable: false,
-                        render: function(data, type, row) {
-                            return '<button class="btn btn-primary btn-sm" onclick="configurarPortales(\'' + row.ID_Propiedad + '\')">' +
-                                   '<i class="fas fa-cog"></i> Configurar' +
-                                   '</button>';
-                        }
-                    }
-                ],
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-                },
-                order: [[0, 'asc']]
-            });
-
-            // Configurar portales
-            window.configurarPortales = function(idPropiedad) {
-                // Obtener datos de la propiedad desde la tabla
-                var datosPropiedad = tabla.rows().data().toArray().find(function(item) {
-                    return item.ID_Propiedad === idPropiedad;
-                });
-
-                if (datosPropiedad) {
-                    // Llenar información de la propiedad
-                    $('#idPropiedadModal').val(idPropiedad);
-                    $('#infoPropiedadModal').html(
-                        '<strong>ID:</strong> ' + datosPropiedad.ID_Propiedad + '<br>' +
-                        '<strong>Código:</strong> ' + (datosPropiedad.Codigo_Referencia || 'N/A') + '<br>' +
-                        '<strong>Título:</strong> ' + (datosPropiedad.Titulo || 'N/A') + '<br>' +
-                        '<strong>Dirección:</strong> ' + (datosPropiedad.Direccion || 'N/A') + '<br>' +
-                        '<strong>Comuna:</strong> ' + (datosPropiedad.Comuna || 'N/A')
-                    );
-
-                    // Cargar IDs existentes
-                    cargarIDsPortales(idPropiedad);
-
-                    // Mostrar modal
-                    var modal = new bootstrap.Modal(document.getElementById('modalConfiguracionPortales'));
-                    modal.show();
-                }
-            };
-
-            // Cargar IDs de portales existentes
-            function cargarIDsPortales(idPropiedad) {
-                $.get('@Url.Action("ObtenerIDsPortales", "ConfiguracionPortales")', { idPropiedad: idPropiedad })
-                .done(function(response) {
-                    if (response.success && response.data) {
-                        $('#idChilePropiedades').val(response.data.id_ChilePropiedades || '');
-                        $('#idPortalInmobiliario').val(response.data.id_PortalInmobiliario || '');
-                        $('#idTocToc').val(response.data.id_TocToc || '');
-                        $('#idProppit').val(response.data.id_Proppit || '');
-                        $('#idPortalRosch').val(response.data.id_PortalRosch || '');
-                    }
-                })
-                .fail(function() {
-                    alert('Error: No se pudieron cargar los IDs de portales existentes');
-                });
-            }
-
-            // Guardar configuración
-            $('#formConfiguracionPortales').on('submit', function(e) {
-                e.preventDefault();
-                
-                var formData = $(this).serialize();
-
-                $.post('@Url.Action("GuardarIDsPortales", "ConfiguracionPortales")', formData)
-                .done(function(response) {
-                    if (response.success) {
-                        var modalEl = document.getElementById('modalConfiguracionPortales');
-                        var modal = bootstrap.Modal.getInstance(modalEl);
-                        modal.hide();
-                        
-                        // Mostrar mensaje de éxito
-                        alert('Configuración guardada exitosamente');
-                        
-                        // Recargar tabla
-                        tabla.ajax.reload(null, false);
-                    } else {
-                        alert('Error al guardar: ' + response.message);
-                    }
-                })
-                .fail(function(xhr, status, error) {
-                    alert('Error al guardar la configuración: ' + error);
-                });
-            });
-        });
-    </script>
+    <script src="~/js/configuracionportales.js" asp-append-version="true"></script>
 }

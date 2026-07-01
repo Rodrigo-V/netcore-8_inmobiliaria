@@ -1,59 +1,147 @@
-/* CSS para Seguimiento Activo - Tema Oscuro */
+/* CSS para Seguimiento Activo - alineado con Propiedades / Leads */
+
+.seguimiento-module {
+    font-size: 11px;
+}
+
+.seguimiento-module .module-title {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.seguimiento-module .module-subtitle {
+    color: #b0b0b0;
+    font-size: 0.8rem;
+}
+
+.seguimiento-module .filter-title {
+    font-size: 0.85rem;
+}
+
+.seguimiento-module .form-control,
+.seguimiento-module .form-select {
+    background-color: #2a2a2a;
+    border-color: #444444;
+    color: #ffffff;
+    font-size: 11px;
+    padding: 0.4rem 0.55rem;
+}
+
+/* Tabla */
+.seguimiento-module table,
+.seguimiento-module #tablaSeguimiento {
+    font-size: 11px;
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #1D1D1D;
+}
+
+.seguimiento-module .dataTables_wrapper {
+    width: 99.9% !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+    color: #ffffff;
+    font-size: 11px;
+}
 
 #tablaSeguimiento {
     background-color: #1e1e1e;
 }
 
 #tablaSeguimiento thead th {
-    background-color: #2a2a2a !important;
+    background-color: #272727 !important;
     color: white !important;
     border: 1px solid #404040 !important;
+    border-bottom: 2px solid #3498db;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 5px !important;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 #tablaSeguimiento tbody td {
     background-color: #1e1e1e !important;
     color: #ffffff !important;
     border: 1px solid #333333 !important;
+    font-size: 11px;
+    padding: 6px 5px !important;
+    line-height: 1.35;
+    vertical-align: middle;
 }
 
 #tablaSeguimiento tbody tr:nth-child(even) {
-    background-color: #252525 !important;
-}
-
-#tablaSeguimiento tbody tr:hover {
-    background-color: #333333 !important;
-}
-
-.dataTables_wrapper {
-    color: #ffffff;
-}
-
-.dataTables_length select,
-.dataTables_filter input {
-    background-color: #2a2a2a;
-    border: 1px solid #444444;
-    color: #ffffff;
-    padding: 5px;
-    border-radius: 4px;
-}
-
-.dataTables_info {
-    color: #b0b0b0 !important;
-}
-
-.dataTables_paginate .paginate_button {
-    background-color: #2a2a2a !important;
-    color: #ffffff !important;
-    border: 1px solid #444444 !important;
-}
-
-.dataTables_paginate .paginate_button:hover {
     background-color: #404040 !important;
 }
 
-.dataTables_paginate .paginate_button.current {
-    background-color: #28a745 !important;
-    border-color: #28a745 !important;
+#tablaSeguimiento tbody tr:nth-child(even) td {
+    background-color: #404040 !important;
+}
+
+#tablaSeguimiento tbody tr:hover,
+#tablaSeguimiento tbody tr:hover td {
+    background-color: #3498db !important;
+    cursor: pointer;
+}
+
+/* Controles DataTables */
+.seguimiento-module .dataTables_length,
+.seguimiento-module .dataTables_filter,
+.seguimiento-module .dataTables_info,
+.seguimiento-module .dataTables_paginate {
+    font-size: 11px !important;
+}
+
+.seguimiento-module .dataTables_length select,
+.seguimiento-module .dataTables_filter input {
+    background-color: #272727 !important;
+    border: 1px solid #404040 !important;
+    color: #ffffff !important;
+    padding: 4px 8px !important;
+    border-radius: 4px;
+    font-size: 11px !important;
+}
+
+.seguimiento-module .dataTables_info {
+    color: #ffffff !important;
+    background-color: #404040 !important;
+    padding: 6px 8px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+}
+
+.seguimiento-module .dataTables_paginate {
+    background-color: #404040 !important;
+    border-radius: 6px !important;
+    padding: 6px !important;
+    margin-top: 10px !important;
+}
+
+.seguimiento-module .dataTables_paginate .paginate_button {
+    background-color: #272727 !important;
+    color: #ffffff !important;
+    border: 1px solid #404040 !important;
+    padding: 4px 8px !important;
+    margin: 0 2px !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+}
+
+.seguimiento-module .dataTables_paginate .paginate_button:hover {
+    background-color: #1D1D1D !important;
+    border-color: #666 !important;
+}
+
+.seguimiento-module .dataTables_paginate .paginate_button.current {
+    background-color: #1D1D1D !important;
+    border: 2px solid #666 !important;
+}
+
+.seguimiento-module .badge {
+    font-size: 10px;
+    padding: 4px 8px;
 }
 
 .badge-pendiente {
@@ -65,4 +153,3 @@
     background-color: #28a745;
     color: white;
 }
-

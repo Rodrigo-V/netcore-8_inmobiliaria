@@ -5,6 +5,7 @@
 }
 
 <div class="container-fluid">
+    @Html.AntiForgeryToken()
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -399,24 +400,24 @@
                         var html = '<div class="row text-center">';
                         
                         response.forEach(function(stat) {
-                            var badgeClass = stat.activo ? 'bg-success' : 'bg-secondary';
-                            var iconClass = stat.activo ? 'fa-check' : 'fa-times';
+                            var badgeClass = stat.Activo ? 'bg-success' : 'bg-secondary';
+                            var iconClass = stat.Activo ? 'fa-check' : 'fa-times';
                             
                             html += `
                                 <div class="col-md-3 mb-3">
                                     <div class="card ${badgeClass} text-white">
                                         <div class="card-body">
-                                            <h6 class="card-title">${stat.nombre}</h6>
+                                            <h6 class="card-title">${stat.Nombre}</h6>
                                             <p class="card-text">
-                                                <small>${stat.tipoAPI}</small><br>
-                                                <i class="fas ${iconClass}"></i> ${stat.activo ? 'Activo' : 'Inactivo'}
+                                                <small>${stat.TipoAPI}</small><br>
+                                                <i class="fas ${iconClass}"></i> ${stat.Activo ? 'Activo' : 'Inactivo'}
                                             </p>
                                             <div class="row text-center">
                                                 <div class="col-6">
-                                                    <small>Pruebas: ${stat.pruebasExitosas}/${stat.totalPruebas}</small>
+                                                    <small>Pruebas: ${stat.PruebasExitosas}/${stat.TotalPruebas}</small>
                                                 </div>
                                                 <div class="col-6">
-                                                    <small>Sync: ${stat.sincronizacionesExitosas}/${stat.totalSincronizaciones}</small>
+                                                    <small>Sync: ${stat.SincronizacionesExitosas}/${stat.TotalSincronizaciones}</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -452,16 +453,16 @@
                     data: { apiId: apiId },
                     success: function(response) {
                         if (tipo === 'prueba') {
-                            var color = response.ultimaPruebaExitoso ? 'text-success' : 'text-danger';
-                            var icon = response.ultimaPruebaExitoso ? 'fa-check-circle' : 'fa-times-circle';
+                            var color = response.UltimaPruebaExitoso ? 'text-success' : 'text-danger';
+                            var icon = response.UltimaPruebaExitoso ? 'fa-check-circle' : 'fa-times-circle';
                             $('.ultima-prueba[data-api-id="' + apiId + '"]').html(
-                                '<i class="fas ' + icon + ' ' + color + '"></i> ' + response.ultimaPrueba
+                                '<i class="fas ' + icon + ' ' + color + '"></i> ' + response.UltimaPrueba
                             );
                         } else {
-                            var color = response.ultimaSincronizacionExitoso ? 'text-success' : 'text-danger';
-                            var icon = response.ultimaSincronizacionExitoso ? 'fa-check-circle' : 'fa-times-circle';
+                            var color = response.UltimaSincronizacionExitoso ? 'text-success' : 'text-danger';
+                            var icon = response.UltimaSincronizacionExitoso ? 'fa-check-circle' : 'fa-times-circle';
                             $('.ultima-sync[data-api-id="' + apiId + '"]').html(
-                                '<i class="fas ' + icon + ' ' + color + '"></i> ' + response.ultimaSincronizacion
+                                '<i class="fas ' + icon + ' ' + color + '"></i> ' + response.UltimaSincronizacion
                             );
                         }
                     },
@@ -500,10 +501,11 @@
                     mostrarResultadoPrueba(response);
                 },
                 error: function (xhr, status, error) {
+                    var detalle = xhr.responseJSON?.Mensaje || xhr.responseText || error;
                     $('#resultadoContenido').html(`
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Error en la petición:</strong> ${error}
+                            <strong>Error en la petición:</strong> ${detalle}
                         </div>
                     `);
                 }
@@ -538,10 +540,11 @@
                     mostrarResultadoSincronizacion(response);
                 },
                 error: function (xhr, status, error) {
+                    var detalle = xhr.responseJSON?.Mensaje || xhr.responseText || error;
                     $('#resultadoContenido').html(`
                         <div class="alert alert-danger">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <strong>Error en la sincronización:</strong> ${error}
+                            <strong>Error en la sincronización:</strong> ${detalle}
                         </div>
                     `);
                 }
@@ -551,26 +554,26 @@
         function mostrarResultadoPrueba(resultado) {
             var html = '';
 
-            if (resultado.exitoso) {
+            if (resultado.Exitoso) {
                 html += `
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
                         <strong>Prueba Exitosa</strong><br>
-                        ${resultado.mensaje}<br>
-                        <strong>URL:</strong> ${resultado.url}<br>
-                        <strong>Status:</strong> ${resultado.statusCode}<br>
-                        <strong>Tiempo:</strong> ${resultado.tiempoRespuesta}ms
+                        ${resultado.Mensaje}<br>
+                        <strong>URL:</strong> ${resultado.Url}<br>
+                        <strong>Status:</strong> ${resultado.StatusCode}<br>
+                        <strong>Tiempo:</strong> ${resultado.TiempoRespuesta}ms
                     </div>
                 `;
 
-                if (resultado.datosRecibidos) {
+                if (resultado.DatosRecibidos) {
                     html += `
                         <div class="card">
                             <div class="card-header">
                                 <h6 class="mb-0">Datos Recibidos</h6>
                             </div>
                             <div class="card-body">
-                                <pre class="bg-light p-3 rounded" style="font-size: 11px; max-height: 200px; overflow-y: auto;">${resultado.datosRecibidos}</pre>
+                                <pre class="bg-light p-3 rounded" style="font-size: 11px; max-height: 200px; overflow-y: auto;">${resultado.DatosRecibidos}</pre>
                             </div>
                         </div>
                     `;
@@ -580,20 +583,20 @@
                     <div class="alert alert-danger">
                         <i class="fas fa-times-circle"></i>
                         <strong>Prueba Fallida</strong><br>
-                        ${resultado.mensaje}<br>
-                        <strong>URL:</strong> ${resultado.url}<br>
-                        <strong>Status:</strong> ${resultado.statusCode}
+                        ${resultado.Mensaje}<br>
+                        <strong>URL:</strong> ${resultado.Url || 'N/A'}<br>
+                        <strong>Status:</strong> ${resultado.StatusCode ?? 'N/A'}
                     </div>
                 `;
 
-                if (resultado.errorDetalle) {
+                if (resultado.ErrorDetalle) {
                     html += `
                         <div class="card">
                             <div class="card-header">
                                 <h6 class="mb-0">Detalles del Error</h6>
                             </div>
                             <div class="card-body">
-                                <pre class="bg-light p-3 rounded" style="font-size: 11px;">${resultado.errorDetalle}</pre>
+                                <pre class="bg-light p-3 rounded" style="font-size: 11px;">${resultado.ErrorDetalle}</pre>
                             </div>
                         </div>
                     `;
@@ -611,14 +614,14 @@
         function mostrarResultadoSincronizacion(resultado) {
             var html = '';
 
-            if (resultado.exitoso) {
+            if (resultado.Exitoso) {
                 html += `
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
                         <strong>Sincronización Exitosa</strong><br>
-                        ${resultado.mensaje}<br>
-                        <strong>Registros procesados:</strong> ${resultado.registrosProcesados}<br>
-                        <strong>Duración:</strong> ${resultado.duracionSegundos.toFixed(2)} segundos
+                        ${resultado.Mensaje}<br>
+                        <strong>Registros procesados:</strong> ${resultado.RegistrosProcesados}<br>
+                        <strong>Duración:</strong> ${Number(resultado.DuracionSegundos).toFixed(2)} segundos
                     </div>
                 `;
             } else {
@@ -626,7 +629,7 @@
                     <div class="alert alert-danger">
                         <i class="fas fa-times-circle"></i>
                         <strong>Sincronización Fallida</strong><br>
-                        ${resultado.mensaje}
+                        ${resultado.Mensaje}
                     </div>
                 `;
             }
@@ -647,17 +650,16 @@
                 type: 'GET',
                 data: { id: apiId },
                 success: function (response) {
-                    if (response) {
-                        // Llenar el formulario con los datos de la API
-                        $('#apiId').val(response.id);
-                        $('#nombre').val(response.nombre);
-                        $('#tipoAPI').val(response.tipoAPI);
-                        $('#url').val(response.url);
-                        $('#endpointUrl').val(response.endpointUrl);
-                        $('#apiKey').val(response.apiKey);
-                        $('#apiSecret').val(response.apiSecret);
-                        $('#descripcion').val(response.descripcion);
-                        $('#activo').prop('checked', response.activo);
+                    if (response && response.Id) {
+                        $('#apiId').val(response.Id);
+                        $('#nombre').val(response.Nombre);
+                        $('#tipoAPI').val(response.TipoAPI);
+                        $('#url').val(response.Url);
+                        $('#endpointUrl').val(response.EndpointUrl);
+                        $('#apiKey').val(response.ApiKey);
+                        $('#apiSecret').val(response.ApiSecret);
+                        $('#descripcion').val(response.Descripcion);
+                        $('#activo').prop('checked', response.Activo);
                         
                         // Cambiar título del modal
                         $('#modalTitle').text('Editar Configuración de API');

@@ -24,12 +24,8 @@ namespace Inmobiliaria.Net8.Controllers
         {
             try
             {
-                var propiedades = await _configuracionImagenesService.ObtenerPropiedadesConImagenesAsync();
                 var estadisticas = await _configuracionImagenesService.ObtenerEstadisticasAsync();
-
-                ViewBag.Propiedades = propiedades;
                 ViewBag.Estadisticas = estadisticas;
-
                 return View();
             }
             catch (Exception ex)
@@ -37,6 +33,31 @@ namespace Inmobiliaria.Net8.Controllers
                 _logger.LogError(ex, "Error al cargar configuración de imágenes");
                 TempData["Error"] = $"Error al cargar las propiedades: {ex.Message}";
                 return View();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetData(string? termino, int pagina = 1, int tamanoPagina = 24)
+        {
+            try
+            {
+                var (propiedades, total) = await _configuracionImagenesService.ObtenerPropiedadesPaginadasAsync(
+                    termino, pagina, tamanoPagina);
+
+                return Json(new
+                {
+                    success = true,
+                    propiedades,
+                    total,
+                    pagina,
+                    tamanoPagina,
+                    totalPaginas = tamanoPagina > 0 ? (int)Math.Ceiling(total / (double)tamanoPagina) : 0
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar propiedades paginadas");
+                return Json(new { success = false, message = ex.Message });
             }
         }
 
@@ -109,12 +130,22 @@ namespace Inmobiliaria.Net8.Controllers
 
         // POST: ConfiguracionImagenes/BuscarPropiedades
         [HttpPost]
-        public async Task<IActionResult> BuscarPropiedades(string termino)
+        public async Task<IActionResult> BuscarPropiedades(string termino, int pagina = 1, int tamanoPagina = 24)
         {
             try
             {
-                var propiedades = await _configuracionImagenesService.ObtenerPropiedadesConImagenesAsync(termino);
-                return Json(new { success = true, propiedades = propiedades });
+                var (propiedades, total) = await _configuracionImagenesService.ObtenerPropiedadesPaginadasAsync(
+                    termino, pagina, tamanoPagina);
+
+                return Json(new
+                {
+                    success = true,
+                    propiedades,
+                    total,
+                    pagina,
+                    tamanoPagina,
+                    totalPaginas = tamanoPagina > 0 ? (int)Math.Ceiling(total / (double)tamanoPagina) : 0
+                });
             }
             catch (Exception ex)
             {

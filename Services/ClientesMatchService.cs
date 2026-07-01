@@ -16,10 +16,11 @@ namespace Inmobiliaria.Net8.Services
             _logger = logger;
         }
 
-        // LISTAR todos los Clientes Match con filtros
-        public async Task<List<ClienteMatch>> ObtenerTodosAsync(FiltroClientesMatch filtro)
+        // LISTAR con paginación y filtros
+        public async Task<(List<ClienteMatch> lista, int total)> ObtenerPaginadosAsync(FiltroClientesMatch filtro)
         {
             var lista = new List<ClienteMatch>();
+            int total = 0;
 
             try
             {
@@ -29,20 +30,25 @@ namespace Inmobiliaria.Net8.Services
                 using var command = new SqlCommand("PP_psnp_ClientesMatch_SelectAll", connection);
                 command.CommandType = CommandType.StoredProcedure;
 
-                // Parámetros del SP
                 command.Parameters.AddWithValue("@ID_Interno", filtro.ID_Interno ?? string.Empty);
                 command.Parameters.AddWithValue("@Nombre", filtro.Nombre ?? string.Empty);
                 command.Parameters.AddWithValue("@Telefono", filtro.Telefono ?? string.Empty);
                 command.Parameters.AddWithValue("@Correo", filtro.Correo ?? string.Empty);
                 command.Parameters.AddWithValue("@Tipo_Match", filtro.Tipo_Match ?? string.Empty);
+                command.Parameters.AddWithValue("@Busqueda", filtro.Busqueda ?? string.Empty);
                 command.Parameters.AddWithValue("@Columna", filtro.ColumnaOrden);
                 command.Parameters.AddWithValue("@Direccion", filtro.DireccionOrden);
+
+                int min = (filtro.PaginaActual - 1) * filtro.TamañoPagina + 1;
+                int max = filtro.PaginaActual * filtro.TamañoPagina;
+                command.Parameters.AddWithValue("@Min", min);
+                command.Parameters.AddWithValue("@Max", max);
 
                 using var reader = await command.ExecuteReaderAsync();
 
                 while (await reader.ReadAsync())
                 {
-                    lista.Add(new ClienteMatch
+                    var item = new ClienteMatch
                     {
                         ID_Interno = reader["ID_Interno"]?.ToString() ?? string.Empty,
                         Tipo_Match = reader["Tipo_Match"]?.ToString(),
@@ -55,18 +61,43 @@ namespace Inmobiliaria.Net8.Services
                         Profesion = reader["Profesion"]?.ToString(),
                         Telefono = reader["Telefono"]?.ToString(),
                         Correo = reader["Correo"]?.ToString(),
-                        Giro_Razon_Social = reader["Giro_Razon_Social"]?.ToString()
-                    });
+                        Giro_Razon_Social = reader["Giro_Razon_Social"]?.ToString(),
+                        TotalRowCount = reader["TotalRowCount"] != DBNull.Value ? Convert.ToInt32(reader["TotalRowCount"]) : 0
+                    };
+
+                    if (total == 0)
+                        total = item.TotalRowCount;
+
+                    lista.Add(item);
                 }
 
-                _logger.LogInformation("Se obtuvieron {Count} clientes match", lista.Count);
-                return lista;
+                return (lista, total);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener clientes match");
+                _logger.LogError(ex, "Error al obtener clientes match paginados");
                 throw new Exception($"Error al obtener clientes match: {ex.Message}", ex);
             }
+        }
+
+        // LISTAR todos los Clientes Match con filtros (sin paginación, uso interno)
+        public async Task<List<ClienteMatch>> ObtenerTodosAsync(FiltroClientesMatch filtro)
+        {
+            var (lista, _) = await ObtenerPaginadosAsync(new FiltroClientesMatch
+            {
+                ID_Interno = filtro.ID_Interno,
+                Nombre = filtro.Nombre,
+                Telefono = filtro.Telefono,
+                Correo = filtro.Correo,
+                Tipo_Match = filtro.Tipo_Match,
+                Busqueda = filtro.Busqueda,
+                ColumnaOrden = filtro.ColumnaOrden,
+                DireccionOrden = filtro.DireccionOrden,
+                PaginaActual = 1,
+                TamañoPagina = int.MaxValue / 2
+            });
+
+            return lista;
         }
 
         // OBTENER por ID

@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Inmobiliaria.Net8.DTOs;
+using Inmobiliaria.Net8.Helpers;
 
 namespace Inmobiliaria.Net8.Services
 {
@@ -28,6 +29,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("PP_psnp_ClientesLeads_SelectxTipoEmpresa", connection);
                 command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 // Parámetros del SP
                 command.Parameters.AddWithValue("@ID_Cliente", filtro.ID_Cliente ?? string.Empty);
@@ -36,6 +38,7 @@ namespace Inmobiliaria.Net8.Services
                 command.Parameters.AddWithValue("@Portal", filtro.Portal ?? string.Empty);
                 command.Parameters.AddWithValue("@Asistente", filtro.Asistente ?? string.Empty);
                 command.Parameters.AddWithValue("@Seguimiento", filtro.Seguimiento ?? string.Empty);
+                command.Parameters.AddWithValue("@Busqueda", filtro.Busqueda ?? string.Empty);
                 command.Parameters.AddWithValue("@Columna", filtro.ColumnaOrden);
                 command.Parameters.AddWithValue("@Direccion", filtro.DireccionOrden);
 
@@ -66,15 +69,13 @@ namespace Inmobiliaria.Net8.Services
                         Sexo = reader["Sexo"]?.ToString(),
                         Telefono = reader["Telefono"]?.ToString(),
                         Correo_Electronico = reader["Correo_Electronico"]?.ToString(),
-                        Visita_Realizada = reader["Visita_Realizada"] != DBNull.Value ? Convert.ToBoolean(reader["Visita_Realizada"]) : null
+                        Visita_Realizada = reader["Visita_Realizada"] != DBNull.Value ? Convert.ToBoolean(reader["Visita_Realizada"]) : null,
+                        Imagen_Propiedad = LeerUrlImagenPropiedad(reader),
+                        TotalRowCount = reader["TotalRowCount"] != DBNull.Value ? Convert.ToInt32(reader["TotalRowCount"]) : 0
                     };
 
                     lista.Add(lead);
                 }
-                
-                // Cargar imágenes de propiedades para cada lead
-                await CargarImagenesPropiedades(lista, connection);
-
 
                 return lista;
             }
@@ -347,25 +348,14 @@ namespace Inmobiliaria.Net8.Services
         }
 
         // OBTENER ESTADÍSTICAS
-        public async Task<dynamic> ObtenerEstadisticasAsync()
+        public async Task<dynamic> ObtenerEstadisticasAsync(string? asistente = null)
         {
             try
             {
                 using var connection = new SqlConnection(_connectionString);
                 await connection.OpenAsync();
 
-                var estadisticas = new
-                {
-                    Total = 0,
-                    Nuevo = 0,
-                    EnSeguimiento = 0,
-                    ConVisitaProgramada = 0,
-                    EnEspera = 0,
-                    Terminado = 0,
-                    Reserva = 0
-                };
-
-                using var command = new SqlCommand(@"
+                var sql = @"
                     SELECT 
                         COUNT(*) as Total,
                         SUM(CASE WHEN Seguimiento = 'Nuevo' THEN 1 ELSE 0 END) as Nuevo,
@@ -374,13 +364,17 @@ namespace Inmobiliaria.Net8.Services
                         SUM(CASE WHEN Seguimiento = 'En Espera' THEN 1 ELSE 0 END) as EnEspera,
                         SUM(CASE WHEN Seguimiento = 'Terminado' THEN 1 ELSE 0 END) as Terminado,
                         SUM(CASE WHEN Seguimiento = 'RESERVA' THEN 1 ELSE 0 END) as Reserva
-                    FROM Clientes_Leads", connection);
+                    FROM Clientes_Leads
+                    WHERE (@Asistente = '' OR Asistente = @Asistente)";
+
+                using var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Asistente", asistente ?? string.Empty);
 
                 using var reader = await command.ExecuteReaderAsync();
 
                 if (await reader.ReadAsync())
                 {
-                    estadisticas = new
+                    return new
                     {
                         Total = Convert.ToInt32(reader["Total"]),
                         Nuevo = Convert.ToInt32(reader["Nuevo"]),
@@ -392,7 +386,16 @@ namespace Inmobiliaria.Net8.Services
                     };
                 }
 
-                return estadisticas;
+                return new
+                {
+                    Total = 0,
+                    Nuevo = 0,
+                    EnSeguimiento = 0,
+                    ConVisitaProgramada = 0,
+                    EnEspera = 0,
+                    Terminado = 0,
+                    Reserva = 0
+                };
             }
             catch (Exception ex)
             {
@@ -496,7 +499,23 @@ namespace Inmobiliaria.Net8.Services
             }
         }
 
-        // Método helper para cargar imágenes de propiedades de forma eficiente
+        private static string? LeerUrlImagenPropiedad(SqlDataReader reader)
+        {
+            try
+            {
+                var ordinal = reader.GetOrdinal("Url_Imagen_Propiedad");
+                if (reader.IsDBNull(ordinal))
+                    return null;
+
+                return GoogleDriveHelper.ConvertirUrlThumbnail(reader.GetString(ordinal));
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return null;
+            }
+        }
+
+        // Método helper para cargar imágenes cuando el SP no incluye JOIN (ej. SelectxPK)
         private async Task CargarImagenesPropiedades(List<ClienteLead> leads, SqlConnection connectionOriginal)
         {
             try
@@ -546,7 +565,7 @@ namespace Inmobiliaria.Net8.Services
                                 if (!string.IsNullOrEmpty(idPropiedad) && !string.IsNullOrEmpty(urlImagen))
                                 {
                                     // Convertir la URL de Google Drive al formato de visualización
-                                    imagenesPorPropiedad[idPropiedad] = ConvertirUrlGoogleDrive(urlImagen);
+                                    imagenesPorPropiedad[idPropiedad] = GoogleDriveHelper.ConvertirUrlThumbnail(urlImagen);
                                 }
                             }
                         }
@@ -570,62 +589,6 @@ namespace Inmobiliaria.Net8.Services
             {
                 _logger.LogError(ex, "Error al cargar imágenes de propiedades");
                 // No lanzar excepción para no interrumpir la carga de leads
-            }
-        }
-
-        // Método helper para convertir URL de Google Drive
-        private string? ConvertirUrlGoogleDrive(string? urlCompartir)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(urlCompartir))
-                    return null;
-
-                // Si ya es una URL de thumbnail, devolverla tal cual
-                if (urlCompartir.Contains("drive.google.com/thumbnail"))
-                    return urlCompartir;
-
-                string fileId = null;
-
-                // Patrón 1: https://drive.google.com/file/d/FILE_ID/view
-                if (urlCompartir.Contains("/file/d/"))
-                {
-                    var startIndex = urlCompartir.IndexOf("/file/d/") + 8;
-                    var endIndex = urlCompartir.IndexOf("/", startIndex);
-                    if (endIndex == -1)
-                        endIndex = urlCompartir.IndexOf("?", startIndex);
-                    if (endIndex == -1)
-                        endIndex = urlCompartir.Length;
-
-                    fileId = urlCompartir.Substring(startIndex, endIndex - startIndex);
-                }
-                // Patrón 2: https://drive.google.com/open?id=FILE_ID
-                else if (urlCompartir.Contains("id="))
-                {
-                    var startIndex = urlCompartir.IndexOf("id=") + 3;
-                    var endIndex = urlCompartir.IndexOf("&", startIndex);
-                    if (endIndex == -1)
-                        endIndex = urlCompartir.Length;
-
-                    fileId = urlCompartir.Substring(startIndex, endIndex - startIndex);
-                }
-                // Si no tiene ningún patrón conocido, asumir que es el ID directo
-                else if (!urlCompartir.Contains("drive.google.com"))
-                {
-                    fileId = urlCompartir;
-                }
-
-                if (!string.IsNullOrEmpty(fileId))
-                {
-                    return $"https://drive.google.com/thumbnail?id={fileId}&sz=w800";
-                }
-
-                return urlCompartir; // Retornar la URL original si no se pudo convertir
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al convertir URL de Google Drive: {Url}", urlCompartir);
-                return urlCompartir;
             }
         }
     }

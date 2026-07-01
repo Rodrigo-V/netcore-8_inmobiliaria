@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Inmobiliaria.Net8.Services;
 using Inmobiliaria.Net8.DTOs;
@@ -7,6 +8,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Inmobiliaria.Net8.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     public class APITestController : Controller
     {
         private readonly APIConfiguracionService _apiService;
@@ -97,9 +99,16 @@ namespace Inmobiliaria.Net8.Controllers
                     testResult.ErrorDetalle = ex.ToString();
                 }
 
-                await _apiService.GuardarTestResultAsync(testResult);
+                try
+                {
+                    await _apiService.GuardarTestResultAsync(testResult);
+                }
+                catch (Exception saveEx)
+                {
+                    _logger.LogWarning(saveEx, "No se pudo guardar el resultado de la prueba en BD");
+                }
 
-                return Json(new { 
+                return Json(new {
                     Exitoso = testResult.Exitoso, 
                     Mensaje = testResult.Mensaje,
                     StatusCode = testResult.StatusCode,
@@ -296,7 +305,6 @@ namespace Inmobiliaria.Net8.Controllers
                         request.Headers.TryAddWithoutValidation("KeyCliente", configuracion.ApiKey);
                     break;
                 case "PortalInmobiliario":
-                    request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
                     if (!string.IsNullOrEmpty(configuracion.ApiSecret))
                         request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {configuracion.ApiSecret}");
                     if (!string.IsNullOrEmpty(configuracion.ApiKey))
@@ -307,7 +315,6 @@ namespace Inmobiliaria.Net8.Controllers
                     {
                         throw new ArgumentException("El token de Chile Propiedades no puede ser null o vacío");
                     }
-                    request.Headers.TryAddWithoutValidation("Content-Type", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", configuracion.ApiSecret);
                     break;
             }

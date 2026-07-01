@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Inmobiliaria.Net8.Services;
 using Inmobiliaria.Net8.DTOs;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Inmobiliaria.Net8.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     public class MercadoLibreController : Controller
     {
         private readonly MercadoLibreService _mlService;

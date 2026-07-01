@@ -1,6 +1,8 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Caching.Memory;
 using Inmobiliaria.Net8.DTOs;
+using Inmobiliaria.Net8.Helpers;
 
 namespace Inmobiliaria.Net8.Services
 {
@@ -8,12 +10,15 @@ namespace Inmobiliaria.Net8.Services
     {
         private readonly string _connectionString;
         private readonly ILogger<PropiedadesService> _logger;
+        private readonly IMemoryCache _cache;
+        private static readonly TimeSpan CatalogCacheDuration = TimeSpan.FromMinutes(30);
 
-        public PropiedadesService(IConfiguration configuration, ILogger<PropiedadesService> logger)
+        public PropiedadesService(IConfiguration configuration, ILogger<PropiedadesService> logger, IMemoryCache cache)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection") 
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             _logger = logger;
+            _cache = cache;
         }
 
         /// <summary>
@@ -36,10 +41,10 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("PP_psnp_Propiedad_SelectxTipoEmpresa", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandTimeout = 120;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
-                // El SP solo acepta búsqueda exacta por ID, para búsqueda global enviar NULL
-                command.Parameters.AddWithValue("@IDPropiedad", DBNull.Value); // Siempre NULL para traer todos
+                command.Parameters.AddWithValue("@IDPropiedad",
+                    string.IsNullOrWhiteSpace(idPropiedad) ? DBNull.Value : idPropiedad.Trim());
                 command.Parameters.AddWithValue("@Columna", columna);
                 command.Parameters.AddWithValue("@Direccion", direccion);
                 command.Parameters.AddWithValue("@Min", start + 1);
@@ -166,7 +171,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("PP_psnp_Propiedad_ModificaxId", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandTimeout = 60;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 command.Parameters.AddWithValue("@ID_Propiedad", propiedad.ID_Propiedad ?? "");
                 command.Parameters.AddWithValue("@Title", propiedad.Title ?? "");
@@ -204,7 +209,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("PP_psnp_Propiedad_AgregaxId", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.CommandTimeout = 60;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 // Generar ID si no existe
                 if (string.IsNullOrWhiteSpace(propiedad.ID_Propiedad))
@@ -309,10 +314,26 @@ namespace Inmobiliaria.Net8.Services
             return estadisticas;
         }
 
-        /// <summary>
-        /// Obtener tipos de propiedad
-        /// </summary>
         public async Task<List<string>> ObtenerTiposPropiedadAsync()
+            => await GetCachedCatalogAsync("catalog:tipos-propiedad", LoadTiposPropiedadAsync);
+
+        public async Task<List<string>> ObtenerEstadosAsync()
+            => await GetCachedCatalogAsync("catalog:estados-propiedad", LoadEstadosAsync);
+
+        public async Task<List<string>> ObtenerAgentesAsync()
+            => await GetCachedCatalogAsync("catalog:agentes-propiedad", LoadAgentesAsync);
+
+        private async Task<List<string>> GetCachedCatalogAsync(string cacheKey, Func<Task<List<string>>> loader)
+        {
+            if (_cache.TryGetValue(cacheKey, out List<string>? cached) && cached != null)
+                return cached;
+
+            var data = await loader();
+            _cache.Set(cacheKey, data, CatalogCacheDuration);
+            return data;
+        }
+
+        private async Task<List<string>> LoadTiposPropiedadAsync()
         {
             var tipos = new List<string>();
 
@@ -323,6 +344,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("PP_psnp_Propiedad_ObtenerTipos", connection);
                 command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 using var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
@@ -339,10 +361,7 @@ namespace Inmobiliaria.Net8.Services
             return tipos;
         }
 
-        /// <summary>
-        /// Obtener estados de propiedad
-        /// </summary>
-        public async Task<List<string>> ObtenerEstadosAsync()
+        private async Task<List<string>> LoadEstadosAsync()
         {
             var estados = new List<string>();
 
@@ -353,6 +372,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("PP_psnp_Propiedad_ObtenerEstados", connection);
                 command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 using var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
@@ -369,10 +389,7 @@ namespace Inmobiliaria.Net8.Services
             return estados;
         }
 
-        /// <summary>
-        /// Obtener agentes responsables
-        /// </summary>
-        public async Task<List<string>> ObtenerAgentesAsync()
+        private async Task<List<string>> LoadAgentesAsync()
         {
             var agentes = new List<string>();
 
@@ -383,6 +400,7 @@ namespace Inmobiliaria.Net8.Services
 
                 using var command = new SqlCommand("PP_psnp_Propiedad_ObtenerAgentes", connection);
                 command.CommandType = CommandType.StoredProcedure;
+                command.CommandTimeout = SqlDefaults.CommandTimeoutSeconds;
 
                 using var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())

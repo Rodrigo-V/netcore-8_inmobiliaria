@@ -167,37 +167,14 @@
     </div>
 </div>
 
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<!-- SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="~/js/sincronizacionportales.js"></script>
-<script>
-    $(document).ready(function() {
-        $('#tablaMatriz').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-            },
-            pageLength: 25,
-            order: [[7, 'desc']] // Ordenar por Total Clics
-        });
-
-        // Toggle para Filtros
-        $('#toggleFiltros').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#filtrosContent').slideDown();
-            } else {
-                $('#filtrosContent').slideUp();
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/sincronizacionportales.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof initVistaMatriz === 'function') {
+                initVistaMatriz();
             }
         });
-
-        // Toggle para Estadísticas
-        $('#toggleEstadisticas').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#estadisticasContent').slideDown();
-            } else {
-                $('#estadisticasContent').slideUp();
-            }
-        });
-    });
-</script>
+    </script>
+}

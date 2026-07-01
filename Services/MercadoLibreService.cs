@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -24,11 +24,15 @@ namespace Inmobiliaria.Net8.Services
         {
             _httpClient = httpClient;
             _configuration = configuration;
-            _clientId = configuration["MercadoLibre:ClientId"];
-            _clientSecret = configuration["MercadoLibre:ClientSecret"];
-            _redirectUri = configuration["MercadoLibre:RedirectUri"];
+            _clientId = configuration["MercadoLibre:ClientId"]
+                ?? throw new InvalidOperationException("MercadoLibre:ClientId no está configurado.");
+            _clientSecret = configuration["MercadoLibre:ClientSecret"]
+                ?? throw new InvalidOperationException("MercadoLibre:ClientSecret no está configurado.");
+            _redirectUri = configuration["MercadoLibre:RedirectUri"]
+                ?? throw new InvalidOperationException("MercadoLibre:RedirectUri no está configurado.");
             _siteId = configuration["MercadoLibre:SiteId"] ?? "MLC"; // Por defecto Chile
-            _connectionString = configuration.GetConnectionString("CadenaSQL");
+            _connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         }
 
         #region Autenticación y Autorización

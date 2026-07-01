@@ -19,6 +19,7 @@ namespace Inmobiliaria.Net8.DTOs
         public string? Telefono { get; set; }
         public string? Correo { get; set; }
         public string? Giro_Razon_Social { get; set; }
+        public int TotalRowCount { get; set; }
     }
 
     /// <summary>
@@ -31,6 +32,9 @@ namespace Inmobiliaria.Net8.DTOs
         public string? Telefono { get; set; }
         public string? Correo { get; set; }
         public string? Tipo_Match { get; set; }
+        public string? Busqueda { get; set; }
+        public int PaginaActual { get; set; } = 1;
+        public int TamañoPagina { get; set; } = 25;
         public string ColumnaOrden { get; set; } = "ID_Interno";
         public string DireccionOrden { get; set; } = "ASC";
     }

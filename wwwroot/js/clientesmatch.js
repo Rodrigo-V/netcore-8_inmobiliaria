@@ -1,186 +1,96 @@
 // ============================================
 // JavaScript para Clientes Match
+// Patrón DataTables server-side (igual que Clientes Leads)
 // ============================================
 
 let tablaMatch;
 
-// Inicializar DataTables
+function obtenerFiltrosMatch() {
+    return {
+        filtroID: $('#filtroID').val() || '',
+        filtroNombre: $('#filtroNombre').val() || '',
+        filtroTelefono: $('#filtroTelefono').val() || '',
+        filtroCorreo: $('#filtroCorreo').val() || ''
+    };
+}
+
 function inicializarDataTablesMatch() {
     console.log('📊 Inicializando DataTables para Clientes Match...');
-    
-    tablaMatch = $('#tablaClientesMatch').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-        },
-        responsive: true,
+
+    tablaMatch = $('#tablaClientesMatch').DataTable(DataTablesCommon.baseConfig({
         order: [[0, 'desc']],
         pageLength: 25,
-        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rtip',
+        ajax: DataTablesCommon.ajaxPost('/ClientesMatch/GetData', function (d) {
+            Object.assign(d, obtenerFiltrosMatch());
+        }),
+        columns: [
+            { data: 'iD_Interno', name: 'ID_Interno' },
+            {
+                data: 'tipo_Match',
+                render: function (data) {
+                    var badgeClass = obtenerClaseBadgeTipoMatch(data);
+                    return '<span class="badge ' + badgeClass + '">' + (data || 'N/A') + '</span>';
+                }
+            },
+            { data: 'nombre', defaultContent: '' },
+            { data: 'rut', defaultContent: 'N/A' },
+            { data: 'telefono', defaultContent: 'N/A' },
+            { data: 'correo', defaultContent: 'N/A' },
+            { data: 'comuna', defaultContent: 'N/A' },
+            { data: 'profesion', defaultContent: 'N/A' },
+            {
+                data: null,
+                orderable: false,
+                render: function (data, type, row) {
+                    return generarBotonesAccion(row.iD_Interno);
+                }
+            }
+        ],
         columnDefs: [
-            { targets: -1, orderable: false } // Columna de acciones no ordenable
+            { targets: -1, orderable: false }
         ]
-    });
-    
+    }));
+
     console.log('✅ DataTables inicializado');
 }
 
-// Cargar Clientes Match con filtros
-function cargarClientesMatch() {
-    console.log('📋 Cargando Clientes Match...');
-    
-    // Obtener valores de filtros
-    const filtros = {
-        ID_Interno: $('#filtroID').val() || '',
-        Nombre: $('#filtroNombre').val() || '',
-        Telefono: $('#filtroTelefono').val() || '',
-        Correo: $('#filtroCorreo').val() || '',
-        ColumnaOrden: 'ID_Interno',
-        DireccionOrden: 'DESC'
-    };
-    
-    console.log('📤 Enviando filtros:', filtros);
-    
-    $.ajax({
-        url: '/ClientesMatch/Listar',
-        type: 'GET',
-        data: filtros,
-        success: function(response) {
-            console.log('✅ Respuesta recibida:', response);
-            console.log('Type of response:', typeof response);
-            console.log('response.success:', response.success);
-            console.log('response.data:', response.data);
-            
-            if (response.success && response.data) {
-                console.log('👍 Respuesta válida, actualizando tabla con', response.data.length, 'registros');
-                actualizarTablaMatch(response.data);
-            } else if (response.success === false) {
-                console.error('❌ Error en la respuesta:', response.message);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.message || 'Error al cargar los clientes match'
-                });
-            } else {
-                console.warn('⚠️ Respuesta sin formato esperado:', response);
-                // Intentar cargar de todas formas si hay datos
-                if (Array.isArray(response)) {
-                    console.log('📊 La respuesta es un array directo, usándolo');
-                    actualizarTablaMatch(response);
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Advertencia',
-                        text: 'La respuesta no tiene el formato esperado'
-                    });
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('❌ Error AJAX:', {
-                status: status,
-                error: error,
-                xhr: xhr,
-                responseText: xhr.responseText
-            });
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de Conexión',
-                text: 'Error al cargar los clientes match: ' + error
-            });
-        }
-    });
-}
-
-// Actualizar tabla con datos
-function actualizarTablaMatch(datos) {
-    console.log('🔄 Actualizando tabla con', datos.length, 'registros');
-    console.log('📋 Primer cliente de ejemplo:', datos[0]);
-    
-    // Limpiar tabla
-    tablaMatch.clear();
-    console.log('🗑️ Tabla limpiada');
-    
-    // Agregar filas
-    let contador = 0;
-    datos.forEach(function(cliente) {
-        // Los datos vienen en minúsculas desde el servidor
-        const id = cliente.iD_Interno || cliente.ID_Interno || '';
-        const tipoMatch = cliente.tipo_Match || cliente.Tipo_Match || 'N/A';
-        const nombre = cliente.nombre || cliente.Nombre || '';
-        const rut = cliente.rut || cliente.Rut || 'N/A';
-        const telefono = cliente.telefono || cliente.Telefono || 'N/A';
-        const correo = cliente.correo || cliente.Correo || 'N/A';
-        const comuna = cliente.comuna || cliente.Comuna || 'N/A';
-        const profesion = cliente.profesion || cliente.Profesion || 'N/A';
-        
-        const badgeClass = obtenerClaseBadgeTipoMatch(tipoMatch);
-        
-        const fila = [
-            id,
-            `<span class="badge ${badgeClass}">${tipoMatch}</span>`,
-            nombre,
-            rut,
-            telefono,
-            correo,
-            comuna,
-            profesion,
-            generarBotonesAccion(id)
-        ];
-        
-        if (contador === 0) {
-            console.log('📝 Primera fila a agregar:', fila);
-        }
-        
-        tablaMatch.row.add(fila);
-        contador++;
-    });
-    
-    console.log('✅ Se agregaron', contador, 'filas');
-    
-    // Redibujar tabla
-    tablaMatch.draw();
-    console.log('✅ Tabla redibujada');
-    
-    // Verificar que la tabla tenga filas
-    const totalFilas = tablaMatch.rows().count();
-    console.log('📊 Total de filas en la tabla después del draw:', totalFilas);
+function recargarTablaMatch() {
+    if (tablaMatch) {
+        tablaMatch.ajax.reload();
+    }
 }
 
 // Obtener clase de badge según tipo de match
 function obtenerClaseBadgeTipoMatch(tipoMatch) {
-    const tipo = (tipoMatch || '').toLowerCase();
-    
+    var tipo = (tipoMatch || '').toLowerCase();
+
     if (tipo.includes('lead')) return 'badge-lead-convertido';
     if (tipo.includes('directo')) return 'badge-cliente-directo';
     if (tipo.includes('referido')) return 'badge-referido';
     if (tipo.includes('web')) return 'badge-contacto-web';
-    
+
     return 'badge-otro';
 }
 
 // Generar botones de acción
 function generarBotonesAccion(idInterno) {
     return `
-        <button class="btn btn-sm btn-warning btn-action" onclick="abrirModalModificar('${idInterno}')">
-            <i class="fas fa-edit"></i> Editar
-        </button>
-        <button class="btn btn-sm btn-danger btn-action" onclick="eliminarClienteMatch('${idInterno}')">
-            <i class="fas fa-trash"></i> Eliminar
-        </button>
+        <div class="action-buttons">
+            <i class="fas fa-edit edit" onclick="abrirModalModificar('${idInterno}')" title="Editar"></i>
+            <i class="fas fa-trash-alt trash" onclick="eliminarClienteMatch('${idInterno}')" title="Eliminar"></i>
+        </div>
     `;
 }
 
 // Abrir modal para modificar
 function abrirModalModificar(idInterno) {
     console.log('📝 Abriendo modal para modificar:', idInterno);
-    
+
     $.ajax({
         url: '/ClientesMatch/ObtenerPorId',
         type: 'GET',
         data: { id: idInterno },
-        success: function(response) {
-            console.log('✅ Cliente recibido:', response);
-            
+        success: function (response) {
             if (response.success && response.data) {
                 cargarDatosEnFormularioModificar(response.data);
                 $('#modificarModal').modal('show');
@@ -192,8 +102,7 @@ function abrirModalModificar(idInterno) {
                 });
             }
         },
-        error: function(xhr, status, error) {
-            console.error('❌ Error al obtener cliente:', error);
+        error: function () {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -205,9 +114,6 @@ function abrirModalModificar(idInterno) {
 
 // Cargar datos en formulario de modificar
 function cargarDatosEnFormularioModificar(cliente) {
-    console.log('📥 Cargando datos en formulario:', cliente);
-    
-    // Los datos vienen en minúsculas desde el servidor
     $('#modificar_ID_Interno').val(cliente.iD_Interno || cliente.ID_Interno || '');
     $('#modificar_ID_Display').val(cliente.iD_Interno || cliente.ID_Interno || '');
     $('#modificar_Tipo_Match').val(cliente.tipo_Match || cliente.Tipo_Match || '');
@@ -224,18 +130,14 @@ function cargarDatosEnFormularioModificar(cliente) {
 }
 
 // Guardar cambios (modificar)
-$(document).on('click', '#btnGuardarModificar', function() {
-    console.log('💾 Guardando cambios...');
-    
-    // Validar formulario
-    const form = document.getElementById('formModificar');
+$(document).on('click', '#btnGuardarModificar', function () {
+    var form = document.getElementById('formModificar');
     if (!form.checkValidity()) {
         form.classList.add('was-validated');
         return;
     }
-    
-    // Recopilar datos
-    const cliente = {
+
+    var cliente = {
         ID_Interno: $('#modificar_ID_Interno').val(),
         Tipo_Match: $('#modificar_Tipo_Match').val(),
         Nombre: $('#modificar_Nombre').val(),
@@ -249,18 +151,13 @@ $(document).on('click', '#btnGuardarModificar', function() {
         Giro_Razon_Social: $('#modificar_Giro_Razon_Social').val() || null,
         Datos_adjuntos: $('#modificar_Datos_adjuntos').val() || null
     };
-    
-    console.log('📤 Enviando datos:', cliente);
-    
-    // Enviar al servidor
+
     $.ajax({
         url: '/ClientesMatch/Actualizar',
         type: 'PUT',
         contentType: 'application/json',
         data: JSON.stringify(cliente),
-        success: function(response) {
-            console.log('✅ Respuesta del servidor:', response);
-            
+        success: function (response) {
             if (response.success) {
                 Swal.fire({
                     icon: 'success',
@@ -268,9 +165,9 @@ $(document).on('click', '#btnGuardarModificar', function() {
                     text: 'Cliente Match actualizado correctamente',
                     timer: 2000,
                     showConfirmButton: false
-                }).then(() => {
+                }).then(function () {
                     $('#modificarModal').modal('hide');
-                    cargarClientesMatch();
+                    recargarTablaMatch();
                 });
             } else {
                 Swal.fire({
@@ -280,8 +177,7 @@ $(document).on('click', '#btnGuardarModificar', function() {
                 });
             }
         },
-        error: function(xhr, status, error) {
-            console.error('❌ Error al actualizar:', error);
+        error: function () {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -293,26 +189,22 @@ $(document).on('click', '#btnGuardarModificar', function() {
 
 // Eliminar cliente match
 function eliminarClienteMatch(idInterno) {
-    console.log('🗑️ Solicitud para eliminar:', idInterno);
-    
     Swal.fire({
         title: '¿Está seguro?',
-        text: "Esta acción no se puede revertir",
+        text: 'Esta acción no se puede revertir',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
-    }).then((result) => {
+    }).then(function (result) {
         if (result.isConfirmed) {
             $.ajax({
                 url: '/ClientesMatch/Eliminar',
                 type: 'DELETE',
                 data: { id: idInterno },
-                success: function(response) {
-                    console.log('✅ Respuesta del servidor:', response);
-                    
+                success: function (response) {
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
@@ -320,8 +212,8 @@ function eliminarClienteMatch(idInterno) {
                             text: 'Cliente Match eliminado correctamente',
                             timer: 2000,
                             showConfirmButton: false
-                        }).then(() => {
-                            cargarClientesMatch();
+                        }).then(function () {
+                            recargarTablaMatch();
                         });
                     } else {
                         Swal.fire({
@@ -331,8 +223,7 @@ function eliminarClienteMatch(idInterno) {
                         });
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('❌ Error al eliminar:', error);
+                error: function () {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -344,9 +235,23 @@ function eliminarClienteMatch(idInterno) {
     });
 }
 
-// Limpiar formulario al cerrar modal
 $('#modificarModal').on('hidden.bs.modal', function () {
     $('#formModificar')[0].reset();
     $('#formModificar').removeClass('was-validated');
 });
 
+$(document).ready(function () {
+    if (typeof inicializarDataTablesMatch === 'function') {
+        inicializarDataTablesMatch();
+    }
+
+    $('#btnBuscar').on('click', function () {
+        recargarTablaMatch();
+    });
+
+    $('#filtroID, #filtroNombre, #filtroTelefono, #filtroCorreo').on('keypress', function (e) {
+        if (e.which === 13) {
+            recargarTablaMatch();
+        }
+    });
+});

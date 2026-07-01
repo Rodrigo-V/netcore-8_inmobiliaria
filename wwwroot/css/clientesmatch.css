@@ -121,24 +121,47 @@ textarea.form-control {
     overflow: hidden;
 }
 
+/* Tabla compacta - scoped al módulo */
+.match-module .module-title {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.match-module .module-subtitle,
+.match-module .filter-title {
+    color: #b0b0b0;
+    font-size: 0.8rem;
+}
+
+.match-module .filter-title {
+    color: #ffffff;
+    font-size: 0.85rem;
+}
+
 #tablaClientesMatch {
     margin-bottom: 0;
     background-color: #1e1e1e;
+    font-size: 10px;
 }
 
 #tablaClientesMatch thead th {
     background-color: #2a2a2a !important;
     color: white !important;
     font-weight: 600;
+    font-size: 10px;
     text-align: center;
     vertical-align: middle;
     border: 1px solid #404040 !important;
-    padding: 12px 8px;
+    padding: 6px 4px !important;
+    white-space: nowrap;
 }
 
 #tablaClientesMatch tbody td {
     vertical-align: middle;
-    padding: 10px 8px;
+    padding: 5px 4px !important;
+    font-size: 10px;
+    line-height: 1.25;
     background-color: #1e1e1e !important;
     color: #ffffff !important;
     border: 1px solid #333333 !important;
@@ -158,17 +181,26 @@ textarea.form-control {
 }
 
 /* DataTables controles oscuros */
-.dataTables_wrapper {
+.match-table-card .dataTables_wrapper {
     color: #ffffff;
+    font-size: 10px;
 }
 
-.dataTables_length select,
-.dataTables_filter input {
+.match-table-card .dataTables_length,
+.match-table-card .dataTables_filter,
+.match-table-card .dataTables_info,
+.match-table-card .dataTables_paginate {
+    font-size: 10px !important;
+}
+
+.match-table-card .dataTables_length select,
+.match-table-card .dataTables_filter input {
     background-color: #2a2a2a;
     border: 1px solid #444444;
     color: #ffffff;
-    padding: 5px;
+    padding: 2px 4px;
     border-radius: 4px;
+    font-size: 10px;
 }
 
 .dataTables_info {
@@ -179,6 +211,8 @@ textarea.form-control {
     background-color: #2a2a2a !important;
     color: #ffffff !important;
     border: 1px solid #444444 !important;
+    padding: 3px 7px !important;
+    font-size: 10px !important;
 }
 
 .dataTables_paginate .paginate_button:hover {
@@ -197,7 +231,54 @@ textarea.form-control {
     color: #666666 !important;
 }
 
-/* Botones de acción */
+/* Botones de acción compactos */
+.match-module .action-buttons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.match-module .action-buttons i {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.match-module .action-buttons i.edit {
+    background-color: rgba(255, 152, 0, 0.1);
+    border: 1px solid #ff9800;
+    color: #ff9800;
+}
+
+.match-module .action-buttons i.trash {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
+
+.match-module .action-buttons i:hover {
+    transform: scale(1.05);
+}
+
+.match-module .action-buttons i.edit:hover {
+    background-color: #ff9800;
+    color: white;
+}
+
+.match-module .action-buttons i.trash:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Botones de acción legacy */
 .btn-action {
     padding: 5px 10px;
     margin: 0 2px;

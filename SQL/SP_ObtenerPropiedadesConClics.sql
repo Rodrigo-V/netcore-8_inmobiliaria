@@ -36,12 +36,12 @@ BEGIN
         p.M2_Terreno AS MetrosTerreno,
         p.Agente_Responsable,
         p.Url_Imagen,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''PortalInmobiliario.com''), 0) AS ClicsPortalInmobiliario,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''Proppit''), 0) AS ClicsProppit,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''ChilePropiedades''), 0) AS ClicsChilePropiedades,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''TocToc''), 0) AS ClicsTocToc,
-        ISNULL((SELECT COUNT(*) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad), 0) AS TotalClicsTodosPortales,
-        (SELECT MAX(Fecha_Clic) FROM Clics_Portales cp WHERE cp.ID_Propiedad = p.ID_Propiedad) AS UltimoClick
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''PortalInmobiliario.com''), 0) AS ClicsPortalInmobiliario,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''Proppit''), 0) AS ClicsProppit,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''ChilePropiedades''), 0) AS ClicsChilePropiedades,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad AND cp.NombrePortal = ''TocToc''), 0) AS ClicsTocToc,
+        ISNULL((SELECT COUNT(*) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad), 0) AS TotalClicsTodosPortales,
+        (SELECT MAX(Fecha_Clic) FROM ClicsPortales cp WHERE cp.ID_Propiedad = p.ID_Propiedad) AS UltimoClick
     FROM Propiedades p
     WHERE 1=1';
 

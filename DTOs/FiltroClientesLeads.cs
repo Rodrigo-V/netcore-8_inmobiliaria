@@ -10,6 +10,7 @@ namespace Inmobiliaria.Net8.DTOs
         public string? Portal { get; set; }
         public string? Asistente { get; set; }
         public string? Seguimiento { get; set; }
+        public string? Busqueda { get; set; }
         public string? ID_Unidad_Consultada { get; set; }
         public DateTime? Fecha_Contacto_Desde { get; set; }
         public DateTime? Fecha_Contacto_Hasta { get; set; }

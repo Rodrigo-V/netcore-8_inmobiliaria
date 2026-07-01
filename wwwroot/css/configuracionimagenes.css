@@ -134,3 +134,19 @@
     flex: 1;
 }
 
+.pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+    padding: 12px;
+}
+
+.pagination-info {
+    color: #bdc3c7;
+    font-size: 14px;
+    min-width: 200px;
+    text-align: center;
+}
+

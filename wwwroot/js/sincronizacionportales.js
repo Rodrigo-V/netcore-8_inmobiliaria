@@ -1,18 +1,37 @@
 // JavaScript para Sincronización de Portales
 
-$(document).ready(function() {
-    console.log('🚀 Módulo Sincronización de Portales cargado');
-    
-    // Inicializar DataTables si existe la tabla
-    if ($('#tablaMatriz').length > 0) {
-        console.log('📊 Inicializando DataTables...');
+function initVistaMatriz() {
+    if ($('#tablaMatriz').length > 0 && !$.fn.DataTable.isDataTable('#tablaMatriz')) {
+        var lang = window.DataTablesCommon ? window.DataTablesCommon.language : {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        };
+
+        $('#tablaMatriz').DataTable({
+            language: lang,
+            pageLength: 25,
+            order: [[7, 'desc']]
+        });
     }
-});
+
+    $('#toggleFiltros').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#filtrosContent').slideDown();
+        } else {
+            $('#filtrosContent').slideUp();
+        }
+    });
+
+    $('#toggleEstadisticas').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#estadisticasContent').slideDown();
+        } else {
+            $('#estadisticasContent').slideUp();
+        }
+    });
+}
 
 // Función para descargar Excel
 function descargarExcel() {
-    console.log('📥 Descargando Excel...');
-    
     Swal.fire({
         title: 'Descargar Excel',
         html: `
@@ -47,8 +66,6 @@ function descargarExcel() {
             if (fechaHasta) params.push(`fechaHasta=${fechaHasta}`);
             if (params.length > 0) url += '?' + params.join('&');
             
-            console.log('🔗 URL de descarga:', url);
-            
             Swal.fire({
                 title: 'Generando Excel...',
                 text: 'Por favor espera',
@@ -58,17 +75,12 @@ function descargarExcel() {
                 }
             });
             
-            console.log('📥 Iniciando descarga...');
-            
-            // Usar un elemento <a> oculto para forzar la descarga
             const link = document.createElement('a');
             link.href = url;
             link.download = 'MatrizSincronizacion.xlsx';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
-            console.log('✅ Descarga iniciada');
             
             setTimeout(() => {
                 Swal.close();
@@ -83,5 +95,3 @@ function descargarExcel() {
         }
     });
 }
-
-console.log('✅ Sincronización de Portales JS cargado');

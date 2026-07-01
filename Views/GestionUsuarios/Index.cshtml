@@ -4,6 +4,7 @@
 }
 
 <link rel="stylesheet" href="~/css/gestionusuarios.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
 
 <div class="container-fluid">
     <!-- Header -->
@@ -263,5 +264,8 @@
     </div>
 </div>
 
-<script src="~/js/gestionusuarios.js"></script>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/gestionusuarios.js" asp-append-version="true"></script>
+}
 

@@ -1,53 +1,101 @@
 // JavaScript para Configuración de Imágenes
 
+const paginacionImagenes = {
+    pagina: 1,
+    tamanoPagina: 24,
+    total: 0,
+    totalPaginas: 0,
+    termino: ''
+};
+
 $(document).ready(function() {
-    console.log('🚀 Inicializando Configuración de Imágenes...');
-    
-    // Búsqueda de propiedades
+    $('#btnPaginaAnterior').on('click', function() {
+        if (paginacionImagenes.pagina > 1) {
+            paginacionImagenes.pagina--;
+            cargarPropiedades();
+        }
+    });
+
+    $('#btnPaginaSiguiente').on('click', function() {
+        if (paginacionImagenes.pagina < paginacionImagenes.totalPaginas) {
+            paginacionImagenes.pagina++;
+            cargarPropiedades();
+        }
+    });
+
     let timeoutBusqueda;
     $('#buscarPropiedad').on('input', function() {
         clearTimeout(timeoutBusqueda);
-        const termino = $(this).val();
-        
+        paginacionImagenes.termino = $(this).val();
+        paginacionImagenes.pagina = 1;
+
         timeoutBusqueda = setTimeout(function() {
-            buscarPropiedades(termino);
-        }, 500);
+            cargarPropiedades();
+        }, 400);
     });
+
+    cargarPropiedades();
 });
 
-function buscarPropiedades(termino) {
-    console.log('🔍 Buscando propiedades:', termino);
-    
+function cargarPropiedades() {
     $.ajax({
-        url: '/ConfiguracionImagenes/BuscarPropiedades',
+        url: '/ConfiguracionImagenes/GetData',
         type: 'POST',
-        data: { termino: termino },
+        data: {
+            termino: paginacionImagenes.termino,
+            pagina: paginacionImagenes.pagina,
+            tamanoPagina: paginacionImagenes.tamanoPagina
+        },
         success: function(response) {
             if (response.success) {
-                actualizarGrid(response.propiedades);
+                paginacionImagenes.total = response.total || 0;
+                paginacionImagenes.totalPaginas = response.totalPaginas || 0;
+                actualizarGrid(response.propiedades || []);
+                actualizarPaginacion();
             }
         },
         error: function(error) {
-            console.error('❌ Error al buscar:', error);
+            console.error('Error al cargar propiedades:', error);
+            $('#infoPaginacion').text('Error al cargar propiedades');
         }
     });
+}
+
+function actualizarPaginacion() {
+    const { pagina, totalPaginas, total } = paginacionImagenes;
+
+    if (total === 0) {
+        $('#infoPaginacion').text('Sin resultados');
+    } else {
+        $('#infoPaginacion').text(`Página ${pagina} de ${totalPaginas} (${total} propiedades)`);
+    }
+
+    $('#btnPaginaAnterior').prop('disabled', pagina <= 1);
+    $('#btnPaginaSiguiente').prop('disabled', pagina >= totalPaginas || totalPaginas === 0);
 }
 
 function actualizarGrid(propiedades) {
     const grid = $('#gridPropiedades');
     grid.empty();
-    
+
+    if (!propiedades.length) {
+        grid.append('<div class="alert alert-info w-100">No se encontraron propiedades.</div>');
+        return;
+    }
+
     propiedades.forEach(function(prop) {
         const tieneImagen = prop.url_Imagen || prop.Url_Imagen;
         const idProp = prop.iD_Propiedad || prop.ID_Propiedad;
-        const titulo = prop.title || prop.Title;
-        const comuna = prop.comuna || prop.Comuna;
-        
+        const titulo = prop.title || prop.Title || '';
+        const comuna = prop.comuna || prop.Comuna || '';
+        const urlEsc = tieneImagen ? String(tieneImagen).replace(/"/g, '&quot;') : '';
+        const tituloEsc = String(titulo).replace(/'/g, "\\'");
+
         const card = `
             <div class="property-card" data-id="${idProp}">
                 <div class="property-image">
-                    ${tieneImagen 
-                        ? `<img src="${tieneImagen}" alt="${titulo}" style="width: 100%; height: 200px; object-fit: cover;">`
+                    ${tieneImagen
+                        ? `<img src="${urlEsc}" alt="${tituloEsc}" style="width: 100%; height: 200px; object-fit: cover;">`
                         : '<i class="fas fa-image"></i>'
                     }
                 </div>
@@ -61,7 +109,7 @@ function actualizarGrid(propiedades) {
                         <button onclick="editarUrl('${idProp}')" class="btn btn-sm btn-primary">
                             <i class="fas fa-edit"></i> URL
                         </button>
-                        ${tieneImagen 
+                        ${tieneImagen
                             ? `<button onclick="eliminarImagen('${idProp}')" class="btn btn-sm btn-danger">
                                 <i class="fas fa-trash"></i>
                               </button>`
@@ -71,14 +119,12 @@ function actualizarGrid(propiedades) {
                 </div>
             </div>
         `;
-        
+
         grid.append(card);
     });
 }
 
 function editarUrl(idPropiedad) {
-    console.log('📝 Editando URL para:', idPropiedad);
-    
     Swal.fire({
         title: 'Actualizar URL de Imagen',
         html: `
@@ -111,7 +157,7 @@ function guardarUrlImagen(idPropiedad, urlImagen) {
     $.ajax({
         url: '/ConfiguracionImagenes/ActualizarUrlImagen',
         type: 'POST',
-        data: { 
+        data: {
             idPropiedad: idPropiedad,
             urlImagen: urlImagen
         },
@@ -123,23 +169,14 @@ function guardarUrlImagen(idPropiedad, urlImagen) {
                     text: response.message,
                     timer: 2000
                 }).then(() => {
-                    location.reload();
+                    cargarPropiedades();
                 });
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: response.message
-                });
+                Swal.fire({ icon: 'error', title: 'Error', text: response.message });
             }
         },
-        error: function(error) {
-            console.error('❌ Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error al guardar la URL'
-            });
+        error: function() {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error al guardar la URL' });
         }
     });
 }
@@ -168,28 +205,16 @@ function eliminarImagen(idPropiedad) {
                             text: response.message,
                             timer: 2000
                         }).then(() => {
-                            location.reload();
+                            cargarPropiedades();
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message
-                        });
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.message });
                     }
                 },
-                error: function(error) {
-                    console.error('❌ Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Error al eliminar la imagen'
-                    });
+                error: function() {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Error al eliminar la imagen' });
                 }
             });
         }
     });
 }
-
-console.log('✅ Configuración de Imágenes inicializado');
-

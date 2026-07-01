@@ -6,9 +6,7 @@ $(document).ready(function() {
     // Inicializar DataTables si existe la tabla
     if ($('#tablaUsuarios').length > 0) {
         $('#tablaUsuarios').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-            },
+            language: DataTablesCommon.language,
             responsive: true,
             order: [[0, 'asc']],
             pageLength: 10,

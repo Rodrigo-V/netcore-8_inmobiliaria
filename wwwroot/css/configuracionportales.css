@@ -1,0 +1,241 @@
+/* Configuración IDs Portales - tema oscuro (alineado con Propiedades / Leads) */
+
+.portales-module {
+    font-size: 11px;
+    background-color: #121212;
+    min-height: 100vh;
+    padding: 16px;
+}
+
+.portales-module .card {
+    background-color: #1e1e1e;
+    border: 1px solid #333333;
+    color: #ffffff;
+}
+
+.portales-module .card-header {
+    background-color: #2a2a2a !important;
+    border-bottom: 1px solid #333333;
+    color: #ffffff !important;
+}
+
+.portales-module .card-header.bg-primary {
+    background: linear-gradient(135deg, #2c3e50, #34495e) !important;
+    border-bottom: 1px solid #404040;
+}
+
+.portales-module .card-body {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.portales-module .card-header h4,
+.portales-module .card-header h5,
+.portales-module .card-title {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.portales-module .card-header small {
+    color: #b0b0b0;
+    font-size: 0.75rem;
+}
+
+/* Tabla */
+.portales-module table,
+.portales-module #tablaPropiedades {
+    font-size: 11px;
+    border-collapse: collapse;
+    width: 100%;
+    background-color: #1D1D1D;
+    color: #ffffff;
+}
+
+.portales-module .dataTables_wrapper {
+    width: 99.9% !important;
+    color: #ffffff;
+    font-size: 11px;
+}
+
+.portales-module #tablaPropiedades thead th {
+    background-color: #272727 !important;
+    color: #ffffff !important;
+    border: 1px solid #404040 !important;
+    border-bottom: 2px solid #3498db !important;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 5px !important;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.portales-module #tablaPropiedades tbody td {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+    font-size: 11px;
+    padding: 6px 5px !important;
+    line-height: 1.35;
+    vertical-align: middle;
+}
+
+.portales-module #tablaPropiedades tbody tr:nth-child(even) td {
+    background-color: #404040 !important;
+}
+
+.portales-module #tablaPropiedades tbody tr:hover td {
+    background-color: #3498db !important;
+}
+
+.portales-module table.dataTable tbody tr {
+    background-color: transparent;
+}
+
+.portales-module table.dataTable.stripe tbody tr.odd,
+.portales-module table.dataTable.display tbody tr.odd {
+    background-color: transparent;
+}
+
+.portales-module table.dataTable.stripe tbody tr.even,
+.portales-module table.dataTable.display tbody tr.even {
+    background-color: transparent;
+}
+
+/* DataTables controles */
+.portales-module .dataTables_length,
+.portales-module .dataTables_filter,
+.portales-module .dataTables_info,
+.portales-module .dataTables_paginate {
+    font-size: 11px !important;
+    color: #ffffff !important;
+}
+
+.portales-module .dataTables_length select,
+.portales-module .dataTables_filter input {
+    background-color: #272727 !important;
+    border: 1px solid #404040 !important;
+    color: #ffffff !important;
+    padding: 4px 8px !important;
+    border-radius: 4px;
+    font-size: 11px !important;
+}
+
+.portales-module .dataTables_info {
+    background-color: #404040 !important;
+    padding: 6px 8px !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+}
+
+.portales-module .dataTables_paginate {
+    background-color: #404040 !important;
+    border-radius: 6px !important;
+    padding: 6px !important;
+    margin-top: 10px !important;
+}
+
+.portales-module .dataTables_paginate .paginate_button {
+    background-color: #272727 !important;
+    color: #ffffff !important;
+    border: 1px solid #404040 !important;
+    padding: 4px 8px !important;
+    margin: 0 2px !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+}
+
+.portales-module .dataTables_paginate .paginate_button:hover {
+    background-color: #1D1D1D !important;
+    color: #ffffff !important;
+    border-color: #666 !important;
+}
+
+.portales-module .dataTables_paginate .paginate_button.current {
+    background-color: #1D1D1D !important;
+    color: #ffffff !important;
+    border: 2px solid #666 !important;
+}
+
+.portales-module .dataTables_paginate .paginate_button.disabled {
+    background-color: #333 !important;
+    color: #666 !important;
+}
+
+.portales-module .btn-sm {
+    font-size: 10px;
+    padding: 4px 8px;
+}
+
+.portales-module img {
+    max-height: 40px;
+    max-width: 52px;
+    border-radius: 4px;
+}
+
+.portales-module .text-muted {
+    color: #888 !important;
+}
+
+/* Modal oscuro */
+#modalConfiguracionPortales .modal-content {
+    background-color: #272727;
+    border: 1px solid #404040;
+    color: #e0e0e0;
+}
+
+#modalConfiguracionPortales .modal-header {
+    background-color: #404040;
+    border-bottom: 1px solid #555;
+    color: #ffffff;
+}
+
+#modalConfiguracionPortales .modal-header.bg-primary {
+    background: linear-gradient(135deg, #2c3e50, #34495e) !important;
+}
+
+#modalConfiguracionPortales .modal-body,
+#modalConfiguracionPortales .modal-footer {
+    background-color: #272727;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+#modalConfiguracionPortales .form-label {
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+#modalConfiguracionPortales .form-control {
+    background-color: #404040;
+    border-color: #555;
+    color: #ffffff;
+}
+
+#modalConfiguracionPortales .form-control:focus {
+    background-color: #505050;
+    border-color: #007bff;
+    color: #ffffff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#modalConfiguracionPortales .form-control::placeholder {
+    color: #999;
+}
+
+#modalConfiguracionPortales .alert-secondary {
+    background-color: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+#modalConfiguracionPortales .alert-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.4);
+    color: #ffc107;
+}
+
+#modalConfiguracionPortales .btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}

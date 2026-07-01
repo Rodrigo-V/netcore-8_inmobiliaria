@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Inmobiliaria.Net8.Services;
@@ -6,6 +7,7 @@ using Inmobiliaria.Net8.DTOs;
 
 namespace Inmobiliaria.Net8.Controllers
 {
+    [Authorize(Roles = "Administrador")]
     [Route("[controller]")]
     public class CargadorExcelPropitController : Controller
     {

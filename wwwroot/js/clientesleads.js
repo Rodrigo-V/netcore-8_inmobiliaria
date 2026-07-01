@@ -46,16 +46,9 @@ $(document).ready(function() {
 // INICIALIZAR DATATABLES
 // ===================================================
 function inicializarDataTables() {
-    // Configuración común para ambas tablas
-    var configComun = {
-        "processing": true,
-        "serverSide": true,
-        "order": [[7, "desc"]], // Ordenar por fecha de creación descendente
-        "pageLength": 10,
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
-        "columns": [
+    var configComun = DataTablesCommon.baseConfig({
+        order: [[7, "desc"]],
+        columns: [
             { "data": "iD_Cliente", "name": "ID_Cliente" },
             {
                 "data": null,
@@ -165,27 +158,15 @@ function inicializarDataTables() {
                 }
             }
         ]
-    };
-    
-    // Inicializar tabla "Todos los Leads"
-    tablaLeads = $('#tablaLeads').DataTable({
-        ...configComun,
-        "ajax": {
-            "url": "/ClientesLeads/GetData",
-            "type": "POST"
-        }
     });
-    
-    // Configuración específica para "Mis Leads" con botones diferentes
-    var configMisLeads = {
-        "processing": true,
-        "serverSide": true,
-        "order": [[7, "desc"]],
-        "pageLength": 10,
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
-        "columns": [
+
+    tablaLeads = $('#tablaLeads').DataTable(Object.assign({}, configComun, {
+        ajax: DataTablesCommon.ajaxPost("/ClientesLeads/GetData")
+    }));
+
+    var configMisLeads = DataTablesCommon.baseConfig({
+        order: [[7, "desc"]],
+        columns: [
             { "data": "iD_Cliente", "name": "ID_Cliente" },
             {
                 "data": null,
@@ -288,15 +269,12 @@ function inicializarDataTables() {
                     return botones;
                 }
             }
-        ],
-        "ajax": {
-            "url": "/ClientesLeads/GetDataMisLeads",
-            "type": "POST"
-        }
-    };
-    
-    // Inicializar tabla "Mis Leads"
-    tablaMisLeads = $('#tablaMisLeads').DataTable(configMisLeads);
+        ]
+    });
+
+    tablaMisLeads = $('#tablaMisLeads').DataTable(Object.assign({}, configMisLeads, {
+        ajax: DataTablesCommon.ajaxPost("/ClientesLeads/GetDataMisLeads")
+    }));
     
     console.log('DataTables inicializadas correctamente');
 }
@@ -517,19 +495,23 @@ var misLeadsChart = null;
 
 function cargarEstadisticasMisLeads() {
     $.ajax({
-        url: '/ClientesLeads/Estadisticas',
+        url: '/ClientesLeads/EstadisticasMisLeads',
         type: 'GET',
         success: function(response) {
-            if (response.success && response.data) {
+            if (!response.success) {
+                console.warn('Estadísticas no disponibles:', response.message || 'Error desconocido');
+                return;
+            }
+
+            if (response.data) {
                 var datos = response.data;
-                
-                // Valores por defecto si no vienen del backend
-                var total = datos.total || 0;
-                var nuevo = datos.nuevo || 0;
-                var enSeguimiento = datos.enSeguimiento || 0;
-                var conVisita = datos.conVisitaProgramada || 0;
-                var enEspera = datos.enEspera || 0;
-                var terminado = datos.terminado || 0;
+
+                var total = datos.Total || 0;
+                var nuevo = datos.Nuevo || 0;
+                var enSeguimiento = datos.EnSeguimiento || 0;
+                var conVisita = datos.ConVisitaProgramada || 0;
+                var enEspera = datos.EnEspera || 0;
+                var terminado = datos.Terminado || 0;
                 
                 // Actualizar los valores
                 $('#totalMisLeads').text(total);
@@ -601,7 +583,7 @@ function cargarEstadisticasMisLeads() {
             }
         },
         error: function(xhr, status, error) {
-            console.error('Error al cargar estadísticas:', error);
+            console.error('Error al cargar estadísticas:', xhr.responseJSON?.message || error);
             // Mostrar valores en 0 en caso de error
             $('#totalMisLeads').text(0);
             $('#misLeadsNuevo').text(0);

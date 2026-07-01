@@ -35,24 +35,10 @@ var tablaPropiedad = null;
 
 function loadGridData() {
     console.log('📊 Cargando DataTable de propiedades...');
-    
-    tablaPropiedad = $('#propiedadTable').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: window.SiteRoot + "Propiedades/GetData",
-            type: "POST",
-            error: function (xhr, error, code) {
-                console.error('❌ Error al cargar datos:', error, code);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error al cargar los datos de propiedades',
-                    background: '#1D1D1D',
-                    color: '#fff'
-                });
-            }
-        },
+
+    tablaPropiedad = $('#propiedadTable').DataTable(DataTablesCommon.baseConfig({
+        ajax: DataTablesCommon.ajaxPost('/Propiedades/GetData'),
+        order: [[0, 'desc']],
         columns: [
             { data: "id_Propiedad", title: "ID" },
             { data: "codigo_Referencia", title: "Código" },
@@ -84,12 +70,8 @@ function loadGridData() {
                 }
             }
         ],
-        order: [[0, "desc"]],
         pageLength: 10,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
         dom: 'Blfrtip',
         buttons: [
             {
@@ -116,7 +98,7 @@ function loadGridData() {
         drawCallback: function() {
             console.log('✅ Tabla renderizada');
         }
-    });
+    }));
 }
 
 function formatearPrecio(precio) {

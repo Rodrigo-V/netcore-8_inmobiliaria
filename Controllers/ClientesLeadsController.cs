@@ -4,6 +4,7 @@ using Inmobiliaria.Net8.DTOs;
 using Inmobiliaria.Net8.Services;
 using System.Security.Claims;
 using Microsoft.Data.SqlClient;
+using Inmobiliaria.Net8.Helpers;
 
 namespace Inmobiliaria.Net8.Controllers
 {
@@ -31,49 +32,37 @@ namespace Inmobiliaria.Net8.Controllers
         [HttpPost]
         public async Task<IActionResult> GetData()
         {
+            var request = DataTablesHelper.Parse(Request.Form);
             try
             {
-                var draw = Convert.ToInt32(Request.Form["draw"].FirstOrDefault() ?? "1");
-                var start = Convert.ToInt32(Request.Form["start"].FirstOrDefault() ?? "0");
-                var length = Convert.ToInt32(Request.Form["length"].FirstOrDefault() ?? "10");
-                var orderColumnIndex = Request.Form["order[0][column]"].FirstOrDefault() ?? "0";
-                var orderDir = Request.Form["order[0][dir]"].FirstOrDefault() ?? "desc";
-
-                // Mapear columna
-                string columna = "Creado"; // por defecto
-                switch (orderColumnIndex)
+                string columna = request.OrderColumnIndex switch
                 {
-                    case "0": columna = "ID_Cliente"; break;
-                    case "3": columna = "Correo_Electronico"; break;
-                    case "4": columna = "Telefono"; break;
-                    case "5": columna = "Portal"; break;
-                    case "7": columna = "Creado"; break;
-                }
+                    "0" => "ID_Cliente",
+                    "3" => "Correo_Electronico",
+                    "4" => "Telefono",
+                    "5" => "Portal",
+                    "7" => "Creado",
+                    _ => "Creado"
+                };
 
-                // Construir filtro DTO
                 var filtroDto = new FiltroClientesLeads
                 {
-                    PaginaActual = (start / Math.Max(length, 1)) + 1,
-                    TamañoPagina = length,
+                    Busqueda = request.SearchValue,
+                    PaginaActual = request.PageNumber,
+                    TamañoPagina = request.Length,
                     ColumnaOrden = columna,
-                    DireccionOrden = orderDir
+                    DireccionOrden = request.OrderDirection
                 };
 
                 var lista = await _clientesLeadsService.ObtenerTodosAsync(filtroDto);
-                var total = await _clientesLeadsService.ContarTotalAsync();
+                var total = lista.FirstOrDefault()?.TotalRowCount ?? 0;
 
-                return Json(new
-                {
-                    draw = draw,
-                    recordsTotal = total,
-                    recordsFiltered = total,
-                    data = lista
-                });
+                return Json(DataTablesHelper.Success(request.Draw, total, MapearLeadsParaDataTable(lista)));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en GetData");
-                return Json(new { draw = 1, recordsTotal = 0, recordsFiltered = 0, data = new object[0], error = ex.Message });
+                return Json(DataTablesHelper.Error(request.Draw, ex.Message));
             }
         }
 
@@ -81,57 +70,44 @@ namespace Inmobiliaria.Net8.Controllers
         [HttpPost]
         public async Task<IActionResult> GetDataMisLeads()
         {
+            var request = DataTablesHelper.Parse(Request.Form);
             try
             {
-                // Obtener el nombre del usuario logueado
                 var usuarioNombre = User.FindFirst("NombreCompleto")?.Value;
                 if (string.IsNullOrEmpty(usuarioNombre))
                 {
-                    return Json(new { draw = 1, recordsTotal = 0, recordsFiltered = 0, data = new object[0], error = "Usuario no identificado" });
+                    return Json(DataTablesHelper.Error(request.Draw, "Usuario no identificado"));
                 }
 
-                var draw = Convert.ToInt32(Request.Form["draw"].FirstOrDefault() ?? "1");
-                var start = Convert.ToInt32(Request.Form["start"].FirstOrDefault() ?? "0");
-                var length = Convert.ToInt32(Request.Form["length"].FirstOrDefault() ?? "10");
-                var orderColumnIndex = Request.Form["order[0][column]"].FirstOrDefault() ?? "0";
-                var orderDir = Request.Form["order[0][dir]"].FirstOrDefault() ?? "desc";
-
-                // Mapear columna
-                string columna = "Creado";
-                switch (orderColumnIndex)
+                string columna = request.OrderColumnIndex switch
                 {
-                    case "0": columna = "ID_Cliente"; break;
-                    case "3": columna = "Correo_Electronico"; break;
-                    case "4": columna = "Telefono"; break;
-                    case "5": columna = "Portal"; break;
-                    case "7": columna = "Creado"; break;
-                }
+                    "0" => "ID_Cliente",
+                    "3" => "Correo_Electronico",
+                    "4" => "Telefono",
+                    "5" => "Portal",
+                    "7" => "Creado",
+                    _ => "Creado"
+                };
 
-                // Construir filtro con el usuario actual
                 var filtroDto = new FiltroClientesLeads
                 {
-                    Asistente = usuarioNombre, // Filtrar por usuario logueado
-                    PaginaActual = (start / Math.Max(length, 1)) + 1,
-                    TamañoPagina = length,
+                    Asistente = usuarioNombre,
+                    Busqueda = request.SearchValue,
+                    PaginaActual = request.PageNumber,
+                    TamañoPagina = request.Length,
                     ColumnaOrden = columna,
-                    DireccionOrden = orderDir
+                    DireccionOrden = request.OrderDirection
                 };
 
                 var lista = await _clientesLeadsService.ObtenerTodosAsync(filtroDto);
-                var total = await _clientesLeadsService.ContarTotalPorAsistenteAsync(usuarioNombre);
+                var total = lista.FirstOrDefault()?.TotalRowCount ?? 0;
 
-                return Json(new
-                {
-                    draw = draw,
-                    recordsTotal = total,
-                    recordsFiltered = total,
-                    data = lista
-                });
+                return Json(DataTablesHelper.Success(request.Draw, total, MapearLeadsParaDataTable(lista)));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en GetDataMisLeads");
-                return Json(new { draw = 1, recordsTotal = 0, recordsFiltered = 0, data = new object[0], error = ex.Message });
+                return Json(DataTablesHelper.Error(request.Draw, ex.Message));
             }
         }
 
@@ -179,6 +155,28 @@ namespace Inmobiliaria.Net8.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener estadísticas");
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // GET: ClientesLeads/EstadisticasMisLeads
+        [HttpGet]
+        public async Task<IActionResult> EstadisticasMisLeads()
+        {
+            try
+            {
+                var usuarioNombre = User.FindFirst("NombreCompleto")?.Value;
+                if (string.IsNullOrEmpty(usuarioNombre))
+                {
+                    return Json(new { success = false, message = "Usuario no identificado" });
+                }
+
+                var estadisticas = await _clientesLeadsService.ObtenerEstadisticasAsync(usuarioNombre);
+                return Json(new { success = true, data = estadisticas });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener estadísticas de mis leads");
                 return Json(new { success = false, message = ex.Message });
             }
         }
@@ -610,12 +608,12 @@ namespace Inmobiliaria.Net8.Controllers
                             // Si la URL ya es completa de Google Drive, convertirla a formato de visualización
                             if (imagenUrl.Contains("drive.google.com"))
                             {
-                                return ConvertirUrlGoogleDrive(imagenUrl);
+                                return GoogleDriveHelper.ConvertirUrlThumbnail(imagenUrl);
                             }
                             // Si es solo el ID de Google Drive, construir la URL completa
                             else if (!string.IsNullOrEmpty(imagenUrl))
                             {
-                                return $"https://drive.google.com/thumbnail?id={imagenUrl}&sz=w800";
+                                return GoogleDriveHelper.ConvertirUrlThumbnail(imagenUrl);
                             }
                         }
                     }
@@ -628,62 +626,6 @@ namespace Inmobiliaria.Net8.Controllers
             {
                 _logger.LogError(ex, "Error al consultar tabla Propiedades: {IdPropiedad}", idPropiedad);
                 return null;
-            }
-        }
-
-        // Método para convertir URL de compartir de Google Drive a URL de visualización directa
-        private string ConvertirUrlGoogleDrive(string urlCompartir)
-        {
-            try
-            {
-                // URL de compartir: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
-                // URL de thumbnail: https://drive.google.com/thumbnail?id=FILE_ID&sz=w800
-                // URL de visualización: https://drive.google.com/uc?export=view&id=FILE_ID
-
-                if (string.IsNullOrEmpty(urlCompartir))
-                    return null;
-
-                // Extraer el ID del archivo de la URL
-                string fileId = null;
-
-                // Patrón 1: https://drive.google.com/file/d/FILE_ID/view
-                if (urlCompartir.Contains("/file/d/"))
-                {
-                    var startIndex = urlCompartir.IndexOf("/file/d/") + 8;
-                    var endIndex = urlCompartir.IndexOf("/", startIndex);
-                    if (endIndex == -1)
-                        endIndex = urlCompartir.IndexOf("?", startIndex);
-                    if (endIndex == -1)
-                        endIndex = urlCompartir.Length;
-
-                    fileId = urlCompartir.Substring(startIndex, endIndex - startIndex);
-                }
-                // Patrón 2: https://drive.google.com/open?id=FILE_ID
-                else if (urlCompartir.Contains("id="))
-                {
-                    var startIndex = urlCompartir.IndexOf("id=") + 3;
-                    var endIndex = urlCompartir.IndexOf("&", startIndex);
-                    if (endIndex == -1)
-                        endIndex = urlCompartir.Length;
-
-                    fileId = urlCompartir.Substring(startIndex, endIndex - startIndex);
-                }
-
-                if (!string.IsNullOrEmpty(fileId))
-                {
-                    // Usar formato de thumbnail para mejor compatibilidad
-                    var urlConvertida = $"https://drive.google.com/thumbnail?id={fileId}&sz=w800";
-                    _logger.LogInformation("URL convertida: {Url}", urlConvertida);
-                    return urlConvertida;
-                }
-
-                _logger.LogWarning("No se pudo extraer el ID del archivo de la URL: {Url}", urlCompartir);
-                return urlCompartir; // Retornar la URL original si no se pudo convertir
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al convertir URL de Google Drive: {Url}", urlCompartir);
-                return urlCompartir;
             }
         }
 
@@ -780,6 +722,25 @@ namespace Inmobiliaria.Net8.Controllers
                 _logger.LogError(ex, "Error al obtener acciones del cliente: {IdCliente}", idCliente);
                 return Json(new List<SeguimientoActivo>());
             }
+        }
+
+        private static IEnumerable<object> MapearLeadsParaDataTable(IEnumerable<ClienteLead> lista)
+        {
+            return lista.Select(l => new
+            {
+                iD_Cliente = l.ID_Cliente,
+                iD_Unidad_Consultada = l.ID_Unidad_Consultada,
+                imagen_Propiedad = l.Imagen_Propiedad,
+                unidad_Consultada = l.Unidad_Consultada,
+                nombres = l.Nombres,
+                apellidos = l.Apellidos,
+                correo_Electronico = l.Correo_Electronico,
+                telefono = l.Telefono,
+                portal = l.Portal,
+                seguimiento = l.Seguimiento,
+                creado = l.Creado,
+                respuesta = l.Respuesta
+            });
         }
     }
 }
